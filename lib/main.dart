@@ -88,12 +88,34 @@ class _RootPageState extends State<RootPage> {
               margin: const EdgeInsets.all(5.0),
               height: (MediaQuery.of(context).size.height * 0.20) - 80,
               decoration: BoxDecoration(
-                border: Border.all(
-                  color: Colors.black,
-                  width: 1
-                ),
+                border: Border.all(color: Colors.black, width: 1),
                 color: Colors.white,
                 borderRadius: BorderRadius.circular(16.0),
+              ),
+              child: Container(
+                margin: const EdgeInsets.all(5.0),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  children: [
+                    Column(
+                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                      children: const [Text('Measure'), Text('1')],
+                    ),
+                    const VerticalDivider(
+                      thickness: 1,
+                      color: Colors.black,
+                    ),
+                    Column(
+                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                      children: const [Text('Time Signature'), Text('4/4')],
+                    ),
+                    const VerticalDivider(
+                      thickness: 1,
+                      color: Colors.black,
+                    ),
+                    IconButton(onPressed: () {}, icon: const Icon(Icons.edit))
+                  ],
+                ),
               ),
             ),
           ),
