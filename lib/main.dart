@@ -119,6 +119,60 @@ class _RootPageState extends State<RootPage> {
               ),
             ),
           ),
+          Container(
+            color: Colors.black12,
+            height: (MediaQuery.of(context).size.height * 0.425) - 80,
+          ),
+          Container(
+            color: Colors.black12,
+            child: Container(
+              margin: const EdgeInsets.all(5.0),
+              height: (MediaQuery.of(context).size.height * 0.30) - 80,
+              decoration: BoxDecoration(
+                border: Border.all(color: Colors.black, width: 1),
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(16.0),
+              ),
+              child: Container(
+                margin: const EdgeInsets.all(5.0),
+                child: Column(
+                  children: [
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                      children: [
+                        IconButton(
+                            padding: EdgeInsets.zero,
+                            onPressed: () {},
+                            icon: const Icon(
+                              Icons.remove,
+                              size: 45,
+                            )),
+                        const Text(
+                          '100%',
+                          style: TextStyle(fontSize: 25),
+                        ),
+                        IconButton(
+                            padding: EdgeInsets.zero,
+                            onPressed: () {},
+                            icon: const Icon(
+                              Icons.add,
+                              size: 45,
+                            )),
+                      ],
+                    ),
+                    const Divider(
+                      color: Colors.black,
+                    ),
+                    IconButton(
+                      onPressed: () {},
+                      icon: const Icon(Icons.play_arrow_rounded),
+                      iconSize: 60,
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
         ],
       ),
     );
