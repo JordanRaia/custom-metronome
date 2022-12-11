@@ -1,4 +1,6 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
+import 'package:audioplayers/audioplayers.dart';
 
 void main() {
   runApp(const MyApp());
@@ -25,14 +27,32 @@ class RootPage extends StatefulWidget {
 }
 
 class _RootPageState extends State<RootPage> {
-  // metronome
+  // metronome bool
   bool isMute = false;
   bool isPlaying = false;
-
-  int tempo = 100;
+  // colors
+  var playColor = Colors.black;
+  // lists
+  List<BoxShadow> boxShadows = [];
+  // values
+  int tempoPercent = 100;
+  int tempo = 120;
   int beatNum = 4;
   int beat = 1;
   int timeSignature = 4;
+  //timer
+  Timer timer = Timer.periodic(
+      Duration(milliseconds: (60 / 120 * 1000).round()), (timer) {});
+
+  @override
+  void initState() {
+    super.initState();
+    for (var i = 0; i < beatNum; i++) {
+      boxShadows.add(
+        const BoxShadow(),
+      );
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -83,10 +103,21 @@ class _RootPageState extends State<RootPage> {
                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                   children: [
                     for (var i = 0; i < beatNum; i++)
-                      const Icon(
-                        Icons.circle,
-                        color: Colors.cyan,
-                        size: 45,
+                      Container(
+                        padding: const EdgeInsets.all(45.0),
+                        height: 45,
+                        width: 45,
+                        decoration: BoxDecoration(
+                          color: Colors.cyan,
+                          borderRadius: BorderRadius.circular(15.0),
+                          boxShadow: isPlaying
+                              ? boxShadows
+                                  .map((shadow) => i == (beat - 1)
+                                      ? shadow
+                                      : const BoxShadow())
+                                  .toList()
+                              : [],
+                        ),
                       ),
                   ],
                 ),
@@ -153,9 +184,9 @@ class _RootPageState extends State<RootPage> {
                           IconButton(
                               padding: EdgeInsets.zero,
                               onPressed: () {
-                                if (tempo != 40) {
+                                if (tempoPercent != 40) {
                                   setState(() {
-                                    tempo -= 1;
+                                    tempoPercent -= 1;
                                   });
                                 }
                               },
@@ -164,14 +195,14 @@ class _RootPageState extends State<RootPage> {
                                 size: 45,
                               )),
                           Text(
-                            '${(tempo)}%',
+                            '${(tempoPercent)}%',
                             style: const TextStyle(fontSize: 25),
                           ),
                           IconButton(
                               padding: EdgeInsets.zero,
                               onPressed: () {
                                 setState(() {
-                                  tempo += 1;
+                                  tempoPercent += 1;
                                 });
                               },
                               icon: const Icon(
@@ -185,13 +216,54 @@ class _RootPageState extends State<RootPage> {
                       ),
                       IconButton(
                         padding: EdgeInsets.zero,
+                        color: playColor,
                         onPressed: () {
                           setState(() {
-                            isPlaying = !isPlaying;
+                            if (isPlaying) {
+                              timer.cancel();
+                              isPlaying = false;
+                              beat = 1;
+                            } else {
+                              Audio.play('Synth_Bell_A_hi.wav');
+                              isPlaying = true;
+                              timer = Timer.periodic(
+                                  Duration(
+                                      milliseconds: (60 / tempo * 1000)
+                                          .round()), (timer) {
+                                if (beat != beatNum) {
+                                  setState(() {
+                                    beat += 1;
+                                    boxShadows[beat - 1] = const BoxShadow(
+                                      color: Colors.cyanAccent,
+                                      blurRadius: 12.0,
+                                      spreadRadius: 8.0,
+                                    );
+                                  });
+                                  Audio.play('Synth_Bell_A_lo.wav');
+                                } else {
+                                  setState(() {
+                                    beat = 1;
+                                    boxShadows[beat - 1] = const BoxShadow(
+                                      color: Colors.cyanAccent,
+                                      blurRadius: 12.0,
+                                      spreadRadius: 8.0,
+                                    );
+                                  });
+                                  Audio.play('Synth_Bell_A_hi.wav');
+                                }
+                              });
+                            }
+                            playColor = Colors.cyan;
+                          });
+                          Timer(const Duration(milliseconds: 100), () {
+                            setState(() {
+                              playColor = Colors.black;
+                            });
                           });
                         },
                         icon: Icon(
-                            isPlaying ? Icons.pause : Icons.play_arrow_rounded),
+                          isPlaying ? Icons.pause : Icons.play_arrow_rounded,
+                        ),
                         iconSize: 60,
                       ),
                     ],
@@ -203,5 +275,17 @@ class _RootPageState extends State<RootPage> {
         ),
       ),
     );
+  }
+}
+
+class Audio {
+  static final player = AudioPlayer();
+
+  static void play(String audioName) async {
+    await player.play(AssetSource(audioName));
+  }
+
+  static void stop() {
+    player.stop();
   }
 }
