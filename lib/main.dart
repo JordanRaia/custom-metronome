@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
-import 'package:audioplayers/audioplayers.dart';
+import 'package:flutter/services.dart';
+import 'package:soundpool/soundpool.dart';
 
 void main() {
   runApp(const MyApp());
@@ -43,15 +44,30 @@ class _RootPageState extends State<RootPage> {
   //timer
   Timer timer = Timer.periodic(
       Duration(milliseconds: (60 / 120 * 1000).round()), (timer) {});
+  //audio files
+  // Create a SoundPlayer instance
+  var soundPlayer = SoundPlayer();
+
+  int high = 0;
+  int low = 0;
+
+  // Load the first sound file into the cache
+  void loadSounds() async {
+    high = await soundPlayer.load('assets/Synth_Bell_A_hi.wav');
+    low = await soundPlayer.load('assets/Synth_Bell_A_lo.wav');
+  }
 
   @override
   void initState() {
     super.initState();
+    // load boxShadows
     for (var i = 0; i < beatNum; i++) {
       boxShadows.add(
         const BoxShadow(),
       );
     }
+    // Load the sound files when the widget is initialized
+    loadSounds();
   }
 
   @override
@@ -224,12 +240,12 @@ class _RootPageState extends State<RootPage> {
                               isPlaying = false;
                               beat = 1;
                             } else {
-                              Audio.play('Synth_Bell_A_hi.wav');
+                              soundPlayer.play(high);
                               isPlaying = true;
                               timer = Timer.periodic(
                                   Duration(
-                                      milliseconds: (60 / tempo * 1000)
-                                          .round()), (timer) {
+                                      microseconds: (60 / tempo * 1000 * 1000)
+                                          .round()), (timer) async {
                                 if (beat != beatNum) {
                                   setState(() {
                                     beat += 1;
@@ -239,7 +255,7 @@ class _RootPageState extends State<RootPage> {
                                       spreadRadius: 8.0,
                                     );
                                   });
-                                  Audio.play('Synth_Bell_A_lo.wav');
+                                  soundPlayer.play(low);
                                 } else {
                                   setState(() {
                                     beat = 1;
@@ -249,7 +265,7 @@ class _RootPageState extends State<RootPage> {
                                       spreadRadius: 8.0,
                                     );
                                   });
-                                  Audio.play('Synth_Bell_A_hi.wav');
+                                  soundPlayer.play(high);
                                 }
                               });
                             }
@@ -278,14 +294,26 @@ class _RootPageState extends State<RootPage> {
   }
 }
 
-class Audio {
-  static final player = AudioPlayer();
+class SoundPlayer {
+  // Create a Soundpool instance
+  final soundpool = Soundpool.fromOptions();
 
-  static void play(String audioName) async {
-    await player.play(AssetSource(audioName));
+  // Load a sound file into the cache
+  Future<int> load(String filePathOrUrl) async {
+    // Convert the file path or URL to a ByteData object
+    var byteData = await rootBundle.load(filePathOrUrl);
+
+    // Load the sound file into the cache
+    return await soundpool.load(byteData);
   }
 
-  static void stop() {
-    player.stop();
+  // Play a sound
+  Future<void> play(int soundId) async {
+    await soundpool.play(soundId);
+  }
+
+  // Set the volume of a sound (between 0.0 and 1.0)
+  Future<void> setVolume(int soundId, double volume) async {
+    await soundpool.setVolume(soundId: soundId, volume: volume);
   }
 }
