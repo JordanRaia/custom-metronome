@@ -57,6 +57,32 @@ class _RootPageState extends State<RootPage> {
     low = await soundPlayer.load('assets/Synth_Bell_A_lo.wav');
   }
 
+  void timerParms() {
+    {
+      if (beat != beatNum) {
+        setState(() {
+          beat += 1;
+          boxShadows[beat - 1] = const BoxShadow(
+            color: Colors.cyanAccent,
+            blurRadius: 12.0,
+            spreadRadius: 8.0,
+          );
+        });
+        soundPlayer.play(low);
+      } else {
+        setState(() {
+          beat = 1;
+          boxShadows[beat - 1] = const BoxShadow(
+            color: Colors.cyanAccent,
+            blurRadius: 12.0,
+            spreadRadius: 8.0,
+          );
+        });
+        soundPlayer.play(high);
+      }
+    }
+  }
+
   @override
   void initState() {
     super.initState();
@@ -200,9 +226,22 @@ class _RootPageState extends State<RootPage> {
                           IconButton(
                               padding: EdgeInsets.zero,
                               onPressed: () {
+                                // 40 is min
                                 if (tempoPercent != 40) {
                                   setState(() {
                                     tempoPercent -= 1;
+                                    if (isPlaying) {
+                                      timer.cancel();
+                                      timer = Timer.periodic(
+                                          Duration(
+                                              milliseconds: (60 /
+                                                      tempo *
+                                                      1000 *
+                                                      (100 / tempoPercent))
+                                                  .round()), (timer) {
+                                        timerParms();
+                                      });
+                                    }
                                   });
                                 }
                               },
@@ -217,9 +256,24 @@ class _RootPageState extends State<RootPage> {
                           IconButton(
                               padding: EdgeInsets.zero,
                               onPressed: () {
-                                setState(() {
-                                  tempoPercent += 1;
-                                });
+                                // 200 is max
+                                if (tempoPercent != 200) {
+                                  setState(() {
+                                    tempoPercent += 1;
+                                    if (isPlaying) {
+                                      timer.cancel();
+                                      timer = Timer.periodic(
+                                          Duration(
+                                              milliseconds: (60 /
+                                                      tempo *
+                                                      1000 *
+                                                      (100 / tempoPercent))
+                                                  .round()), (timer) {
+                                        timerParms();
+                                      });
+                                    }
+                                  });
+                                }
                               },
                               icon: const Icon(
                                 Icons.add,
@@ -236,37 +290,22 @@ class _RootPageState extends State<RootPage> {
                         onPressed: () {
                           setState(() {
                             if (isPlaying) {
+                              // stop
                               timer.cancel();
                               isPlaying = false;
                               beat = 1;
                             } else {
+                              // start
                               soundPlayer.play(high);
                               isPlaying = true;
                               timer = Timer.periodic(
                                   Duration(
-                                      microseconds: (60 / tempo * 1000 * 1000)
-                                          .round()), (timer) async {
-                                if (beat != beatNum) {
-                                  setState(() {
-                                    beat += 1;
-                                    boxShadows[beat - 1] = const BoxShadow(
-                                      color: Colors.cyanAccent,
-                                      blurRadius: 12.0,
-                                      spreadRadius: 8.0,
-                                    );
-                                  });
-                                  soundPlayer.play(low);
-                                } else {
-                                  setState(() {
-                                    beat = 1;
-                                    boxShadows[beat - 1] = const BoxShadow(
-                                      color: Colors.cyanAccent,
-                                      blurRadius: 12.0,
-                                      spreadRadius: 8.0,
-                                    );
-                                  });
-                                  soundPlayer.play(high);
-                                }
+                                      milliseconds: (60 /
+                                              tempo *
+                                              1000 *
+                                              (100 / tempoPercent))
+                                          .round()), (timer) {
+                                timerParms();
                               });
                             }
                             playColor = Colors.cyan;
