@@ -2,6 +2,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:soundpool/soundpool.dart';
+import 'package:custom_metronome/tempo.dart';
 
 void main() {
   runApp(const MyApp());
@@ -196,7 +197,16 @@ class _RootPageState extends State<RootPage> {
                         thickness: 1,
                         color: Colors.black,
                       ),
-                      IconButton(onPressed: () {}, icon: const Icon(Icons.edit))
+                      IconButton(
+                        onPressed: () {
+                          Navigator.of(context).push(MaterialPageRoute(
+                            builder: (BuildContext context) {
+                              return const MyTempo();
+                            },
+                          ));
+                        },
+                        icon: const Icon(Icons.edit),
+                      )
                     ],
                   ),
                 ),

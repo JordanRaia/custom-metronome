@@ -1,0 +1,432 @@
+import 'package:flutter/material.dart';
+
+void main() => runApp(MyApp());
+
+class MyApp extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      title: 'Flutter Demo',
+      theme: ThemeData(
+        primarySwatch: Colors.blue,
+        // Add a custom font
+        fontFamily: 'Montserrat',
+      ),
+      home: MyHomePage(),
+    );
+  }
+}
+
+class MyHomePage extends StatefulWidget {
+  @override
+  _MyHomePageState createState() => _MyHomePageState();
+}
+
+class _MyHomePageState extends State<MyHomePage> {
+  // This is the list of objects that we'll display in our list view
+  List<ObjectData> objects = [    ObjectData(timeSignature: '4/4', tempo: 120, measures: 16),    ObjectData(timeSignature: '3/4', tempo: 100, measures: 12),    ObjectData(timeSignature: '2/4', tempo: 90, measures: 8),  ];
+
+  // This is the sorting mode for the list of objects
+  String sortMode = 'timeSignature';
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text('Object List'),
+        // Add a button to the app bar to open the sort options
+        actions: <Widget>[
+          IconButton(
+            icon: Icon(Icons.sort),
+            onPressed: () {
+              showSortOptions(context);
+            },
+          ),
+        ],
+      ),
+      body: ListView.builder(
+        // This is the number of items in our list
+        itemCount: objects.length,
+        // This is the builder function that creates each item in the list
+        itemBuilder: (context, index) {
+          // Get the object data for the current item
+          ObjectData object = objects[index];
+
+          return ObjectCard(
+            object: object,
+            // When the delete button is tapped, remove the item from the list
+            onDelete: () {
+              setState(() {
+                objects.removeAt(index);
+              });
+            },
+            // When the edit button is tapped, show the edit object dialog
+            onEdit: () {
+              showEditObjectDialog(context, object, index);
+            },
+          );
+        },
+      ),
+      floatingActionButton: FloatingActionButton(
+        // The FAB should have a plus icon
+        child: Icon(Icons.add),
+        // When the button is tapped, show the add object dialog
+        onPressed: () {
+          showAddObjectDialog(context);
+        },
+      ),
+    );
+  }
+
+  // This function shows a dialog where the user can enter the data for a new object
+  void showAddObjectDialog(BuildContext context) {
+    // Create a text controller for the time signature field
+    final timeSignatureController = TextEditingController();
+    // Create a text controller for the tempo field
+    final tempoController = TextEditingController();
+    // Create a text controller for the number of measures field
+    final measuresController = TextEditingController();
+    // something
+    final descriptionController = TextEditingController();
+
+    // Create a new alert dialog
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          // The dialog has a title
+          title: Text('Add Object'),
+          // The dialog has a content area that contains the input fields for the object data
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: <Widget>[
+              // Use a DropdownButton for the time signature field
+              DropdownButtonFormField(
+                value: timeSignatureController.text,
+                items: [
+                  '1/4',
+                  '2/4',
+                  '3/4',
+                  '4/4',
+                  '5/4',
+                  '6/4',
+                  '7/4',
+                  '8/4',
+                ].map((timeSignature) {
+                  return DropdownMenuItem(
+                    value: timeSignature,
+                    child: Text(timeSignature),
+                  );
+                }).toList(),
+                onChanged: (value) {
+                  timeSignatureController.text = value!;
+                },
+              ),
+              // Use a TextFormField for the tempo field
+              TextFormField(
+                controller: tempoController,
+                decoration: const InputDecoration(
+                  labelText: 'Tempo',
+                ),
+                // Only allow numbers to be entered in the tempo field
+                keyboardType: TextInputType.number,
+              ),
+              // Use a TextFormField for the number of measures field
+              TextFormField(
+                controller: measuresController,
+                decoration: InputDecoration(
+                  labelText: 'Measures',
+                ),
+                // Only allow numbers to be entered in the measures field
+                keyboardType: TextInputType.number,
+              ),
+              // Use a TextFormField for the description field
+              TextFormField(
+                controller: descriptionController,
+                decoration: InputDecoration(
+                  labelText: 'Description',
+                ),
+              ),
+            ],
+          ),
+          // The dialog has two buttons: one to cancel the operation and one to add the new object
+          actions: <Widget>[
+            FlatButton(
+              child: Text('Cancel'),
+              // When the cancel button is tapped, just close the dialog
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+            FlatButton(
+              child: Text('Add'),
+              // When the add button is tapped, add the new object to the list and close the dialog
+              onPressed: () {
+                setState(() {
+                  // Parse the input fields to get the values for the object data
+                  String timeSignature = timeSignatureController.text;
+                  int tempo = int.tryParse(tempoController.text) ?? 0;
+                  int measures = int.tryParse(measuresController.text) ?? 0;
+                  String description = descriptionController.text;
+
+                  // Add the new object to the list
+                  objects.add(ObjectData(timeSignature: timeSignature, tempo: tempo, measures: measures, description: description));
+                });
+                Navigator.of(context).pop();
+              },
+            ),
+        },
+      );
+    }
+
+  // This function shows a dialog where the user can edit the data for an existing object
+  void showEditObjectDialog(BuildContext context, ObjectData object, int index) {
+    // Create a text controller for the time signature field
+    final timeSignatureController = TextEditingController(text: object.timeSignature);
+    // Create a text controller for the tempo field
+    final tempoController = TextEditingController(text: object.tempo.toString());
+    // Create a text controller for the number of measures field
+    final measuresController = TextEditingController(text: object.measures.toString());
+    // Create a text controller for the description field
+    final descriptionController = TextEditingController(text: object.description);
+
+    // Create a new alert dialog
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          // The dialog has a title
+          title: Text('Edit Object'),
+          // The dialog has a content area that contains the input fields for the object data
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: <Widget>[
+              // Use a DropdownButton for the time signature field
+              DropdownButtonFormField(
+                value: timeSignatureController.text,
+                items: [
+                  '1/4',
+                  '2/4',
+                  '3/4',
+                  '4/4',
+                  '5/4',
+                  '6/4',
+                  '7/4',
+                  '8/4',
+                ].map((timeSignature) {
+                  return DropdownMenuItem(
+                    value: timeSignature,
+                    child: Text(timeSignature),
+                  );
+                }).toList(),
+                onChanged: (value) {
+                  timeSignatureController.text = value;
+                },
+              ),
+              // Use a TextFormField for the tempo field
+              TextFormField(
+                controller: tempoController,
+                decoration: InputDecoration(
+                  labelText: 'Tempo',
+                ),
+                // Only allow numbers to be entered in the tempo field
+                keyboardType: TextInputType.number,
+              ),
+              // Use a TextFormField for the number of measures field
+              TextFormField(
+                controller: measuresController,
+                decoration: InputDecoration(
+                  labelText: 'Measures',
+                ),
+                // Only allow numbers to be entered in the measures field
+                keyboardType: TextInputType.number,
+              ),
+              // Use a TextFormField for the description field
+              TextFormField(
+                controller: descriptionController,
+                decoration: InputDecoration(
+                  labelText: 'Description',
+                ),
+              ),
+            ],
+          ),
+          // The dialog has two buttons: one to cancel the operation and one to save the edited object
+          actions: <Widget>[
+            FlatButton(
+              child: Text('Cancel'),
+              // When the cancel button is tapped, just close the dialog
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+            FlatButton(
+              child: Text('Save'),
+              // When the save button is tapped, update the object in the list and close the dialog
+              onPressed
+setState(() {
+                  // Parse the input fields to get the values for the object data
+                  String timeSignature = timeSignatureController.text;
+                  int tempo = int.tryParse(tempoController.text) ?? 0;
+                  int measures = int.tryParse(measuresController.text) ?? 0;
+                  String description = descriptionController.text;
+
+                  // Update the object in the list
+                  objects[index] = ObjectData(timeSignature: timeSignature, tempo: tempo, measures: measures, description: description);
+                });
+                Navigator.of(context).pop();
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  // This function shows a bottom sheet with options for sorting the list of objects
+  void showSortOptions(BuildContext context) {
+    // Create a new bottom sheet
+    showModalBottomSheet(
+      context: context,
+      builder: (context) {
+        return Container(
+          // Add some padding to the bottom sheet
+          padding: EdgeInsets.all(20),
+          // The bottom sheet has a list of options for sorting the objects
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: <Widget>[
+              ListTile(
+                leading: Icon(Icons.sort_by_alpha),
+                title: Text('Sort by Time Signature'),
+                // When this option is selected, sort the objects by time signature and close the bottom sheet
+                onTap: () {
+                  setState(() {
+                    sortMode = 'timeSignature';
+                    objects.sort((a, b) => a.timeSignature.compareTo(b.timeSignature));
+                  });
+                  Navigator.of(context).pop();
+                },
+              ),
+              ListTile(
+                leading: Icon(Icons.sort_by_alpha),
+                title: Text('Sort by Tempo'),
+                // When this option is selected, sort the objects by tempo and close the bottom sheet
+                onTap: () {
+                  setState(() {
+                    sortMode = 'tempo';
+                    objects.sort((a, b) => a.tempo.compareTo(b.tempo));
+                  });
+                  Navigator.of(context).pop();
+                },
+              ),
+              ListTile(
+                leading: Icon(Icons.sort_by_alpha),
+                title: Text('Sort by Measures'),
+                // When this option is selected, sort the objects by number of measures and close the bottom sheet
+                onTap: () {
+                  setState(() {
+                    sortMode = 'measures';
+                    objects.sort((a, b) => a.measures.compareTo(b.measures));
+                  });
+                  Navigator.of(context).pop();
+                },
+              ),
+              ListTile(
+                leading: Icon(Icons.sort_by_alpha),
+                title: Text('Sort by Description'),
+                // When this option is selected, sort the objects by description and close the bottom sheet
+                onTap: () {
+                  setState(() {
+                    sortMode = 'description';
+                    objects.sort((a, b) => a.description.compareTo(b.description));
+                  });
+                  Navigator.of(context).pop();
+                },
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+}
+
+// This class represents the data for a single object
+class ObjectData {
+  final String timeSignature;
+  final int tempo;
+  final int measures;
+  final String description;
+
+  ObjectData({
+    this.timeSignature,
+    this.tempo,
+    this.measures,
+    this.description,
+  });
+}
+
+// This is a custom widget that displays the data for a single object
+class ObjectCard extends StatelessWidget {
+  final ObjectData object;
+  final Function onDelete;
+  final Function onEdit;
+
+  ObjectCard({
+    this.object,
+    this.onDelete,
+    this.onEdit,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Card(
+      // Add some margin around the card
+      margin: EdgeInsets.all(10),
+      // The card has a row of widgets for displaying the object data
+      child: Row(
+        children: <Widget>[
+          // This column contains the time signature, tempo, and number of measures
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: <Widget>[
+              Text(
+                'Time Signature: ${object.timeSignature}',
+                style: Theme.of(context).textTheme.subtitle1,
+              ),
+              Text(
+                'Tempo: ${object.tempo}',
+                style: Theme.of(context).textTheme.subtitle1,
+              ),
+              Text(
+                'Measures: ${object.measures}',
+                style: Theme.of(context).textTheme.subtitle1,
+              ),
+            ],
+          ),
+          // This column contains the description and the buttons for editing and deleting the object
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.end,
+              children: <Widget>[
+                // Add a button for editing the object
+                IconButton(
+                  icon: Icon(Icons.edit),
+                  // When the button is tapped
+onPressed: onEdit,
+                ),
+                // Add a button for deleting the object
+                IconButton(
+                  icon: Icon(Icons.delete),
+                  // When the button is tapped, call the onDelete callback
+                  onPressed: onDelete,
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
