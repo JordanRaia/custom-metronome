@@ -2,8 +2,8 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:soundpool/soundpool.dart';
-// import 'package:custom_metronome/tempocpt.dart';
 import 'package:custom_metronome/tempo.dart';
+import 'package:custom_metronome/globals.dart';
 
 void main() {
   runApp(const MyApp());
@@ -18,6 +18,9 @@ class MyApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       theme: ThemeData(primarySwatch: Colors.grey),
       home: const RootPage(),
+      routes: {
+        '/tempo': (context) => const EditTempo(),
+      },
     );
   }
 }
@@ -38,38 +41,6 @@ class _RootPageState extends State<RootPage> {
   // lists
   List<BoxShadow> boxShadows = [];
   // values
-  List<Metronome> metronomes = [
-    Metronome(
-      tempo: 126,
-      beatsPerMeasure: 2,
-      timeSignature: 4,
-      measures: 5,
-    ),
-    Metronome(
-      tempo: 126,
-      beatsPerMeasure: 2,
-      timeSignature: 8,
-      measures: 1,
-    ),
-    Metronome(
-      tempo: 126,
-      beatsPerMeasure: 3,
-      timeSignature: 16,
-      measures: 1,
-    ),
-    Metronome(
-      tempo: 126,
-      beatsPerMeasure: 2,
-      timeSignature: 8,
-      measures: 1,
-    ),
-    Metronome(
-      tempo: 138,
-      beatsPerMeasure: 4,
-      timeSignature: 4,
-      measures: 2,
-    ),
-  ];
   int activeMetronome = 0; // index of active metronome
 
   int tempoPercent =
@@ -314,11 +285,7 @@ class _RootPageState extends State<RootPage> {
                       ),
                       IconButton(
                         onPressed: () {
-                          Navigator.of(context).push(MaterialPageRoute(
-                            builder: (BuildContext context) {
-                              return const MyTempo();
-                            },
-                          ));
+                          Navigator.pushNamed(context, '/tempo');
                         },
                         icon: const Icon(Icons.edit),
                       )
@@ -457,27 +424,6 @@ class _RootPageState extends State<RootPage> {
       ),
     );
   }
-}
-
-class Metronome {
-  // beats per minute
-  int tempo;
-
-  // number of beats per measure, for example the 3 in 3/4
-  int beatsPerMeasure;
-
-  // bottom of the time signature, for example the 4 in 3/4
-  int timeSignature;
-
-  // number of measures to play, with -1 indicating infinite measures
-  int measures;
-
-  Metronome({
-    this.tempo = 120,
-    this.beatsPerMeasure = 4,
-    this.timeSignature = 4,
-    this.measures = -1,
-  });
 }
 
 class SoundPlayer {
