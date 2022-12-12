@@ -2,6 +2,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:soundpool/soundpool.dart';
+// import 'package:custom_metronome/tempocpt.dart';
 import 'package:custom_metronome/tempo.dart';
 
 void main() {
@@ -29,26 +30,38 @@ class RootPage extends StatefulWidget {
 }
 
 class _RootPageState extends State<RootPage> {
+  // colors
+  var playColor = Colors.black;
   // metronome bool
   bool isMute = false;
   bool isPlaying = false;
-  // colors
-  var playColor = Colors.black;
   // lists
   List<BoxShadow> boxShadows = [];
   // values
-  int tempoPercent = 100;
-  int tempo = 120;
-  int beatNum = 4;
-  int beat = 1;
-  int timeSignature = 4;
+  List<Metronome> metronomes = [
+    Metronome(
+      tempo: 120,
+      beatsPerMeasure: 3,
+      timeSignature: 4,
+      measures: -1,
+    ),
+  ];
+  int activeMetronome = 0; // index of active metronome
+
+  int tempoPercent =
+      100; // The tempo as a percent (e.g. 100 = normal tempo, 50 = half tempo)
+  int beat = 1; // current beat
+  int totalMeasures = 0; // total measures played
+  int currentMeasure = 0; // current measure of metronome object
+
   //timer
   Timer timer = Timer.periodic(
       Duration(milliseconds: (60 / 120 * 1000).round()), (timer) {});
-  //audio files
-  // Create a SoundPlayer instance
-  var soundPlayer = SoundPlayer();
 
+  //audio files
+  var soundPlayer = SoundPlayer(); // Create a SoundPlayer instance
+
+  // soundplayer object ids
   int high = 0;
   int low = 0;
 
@@ -58,9 +71,16 @@ class _RootPageState extends State<RootPage> {
     low = await soundPlayer.load('assets/Synth_Bell_A_lo.wav');
   }
 
+  int getTime(tempo, tempoPercent, timeSignature) {
+    int time = (60 / tempo * 1000 * (100 / tempoPercent) / (timeSignature / 4))
+        .round();
+
+    return time;
+  }
+
   void timerParms() {
     {
-      if (beat != beatNum) {
+      if (beat != metronomes[activeMetronome].beatsPerMeasure) {
         setState(() {
           beat += 1;
           boxShadows[beat - 1] = const BoxShadow(
@@ -88,10 +108,12 @@ class _RootPageState extends State<RootPage> {
   void initState() {
     super.initState();
     // load boxShadows
-    for (var i = 0; i < beatNum; i++) {
-      boxShadows.add(
-        const BoxShadow(),
-      );
+    for (var i = 0; i < metronomes.length; i++) {
+      for (var j = 0; j < metronomes[i].beatsPerMeasure; j++) {
+        boxShadows.add(
+          const BoxShadow(),
+        );
+      }
     }
     // Load the sound files when the widget is initialized
     loadSounds();
@@ -145,7 +167,9 @@ class _RootPageState extends State<RootPage> {
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                   children: [
-                    for (var i = 0; i < beatNum; i++)
+                    for (var i = 0;
+                        i < metronomes[activeMetronome].beatsPerMeasure;
+                        i++)
                       Container(
                         padding: const EdgeInsets.all(45.0),
                         height: 45,
@@ -244,13 +268,13 @@ class _RootPageState extends State<RootPage> {
                                       timer.cancel();
                                       timer = Timer.periodic(
                                           Duration(
-                                              milliseconds: (60 /
-                                                      tempo *
-                                                      1000 *
-                                                      (100 / tempoPercent))
-                                                  .round()), (timer) {
-                                        timerParms();
-                                      });
+                                              milliseconds: (getTime(
+                                                  metronomes[activeMetronome]
+                                                      .tempo,
+                                                  tempoPercent,
+                                                  metronomes[activeMetronome]
+                                                      .timeSignature))),
+                                          (timer) => timerParms());
                                     }
                                   });
                                 }
@@ -274,13 +298,13 @@ class _RootPageState extends State<RootPage> {
                                       timer.cancel();
                                       timer = Timer.periodic(
                                           Duration(
-                                              milliseconds: (60 /
-                                                      tempo *
-                                                      1000 *
-                                                      (100 / tempoPercent))
-                                                  .round()), (timer) {
-                                        timerParms();
-                                      });
+                                              milliseconds: (getTime(
+                                                  metronomes[activeMetronome]
+                                                      .tempo,
+                                                  tempoPercent,
+                                                  metronomes[activeMetronome]
+                                                      .timeSignature))),
+                                          (timer) => timerParms());
                                     }
                                   });
                                 }
@@ -310,13 +334,12 @@ class _RootPageState extends State<RootPage> {
                               isPlaying = true;
                               timer = Timer.periodic(
                                   Duration(
-                                      milliseconds: (60 /
-                                              tempo *
-                                              1000 *
-                                              (100 / tempoPercent))
-                                          .round()), (timer) {
-                                timerParms();
-                              });
+                                      milliseconds: (getTime(
+                                          metronomes[activeMetronome].tempo,
+                                          tempoPercent,
+                                          metronomes[activeMetronome]
+                                              .timeSignature))),
+                                  (timer) => timerParms());
                             }
                             playColor = Colors.cyan;
                           });
@@ -341,6 +364,27 @@ class _RootPageState extends State<RootPage> {
       ),
     );
   }
+}
+
+class Metronome {
+  // beats per minute
+  int tempo;
+
+  // number of beats per measure, for example the 3 in 3/4
+  int beatsPerMeasure;
+
+  // bottom of the time signature, for example the 4 in 3/4
+  int timeSignature;
+
+  // number of measures to play, with -1 indicating infinite measures
+  int measures;
+
+  Metronome({
+    this.tempo = 120,
+    this.beatsPerMeasure = 4,
+    this.timeSignature = 4,
+    this.measures = -1,
+  });
 }
 
 class SoundPlayer {
