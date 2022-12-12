@@ -40,10 +40,34 @@ class _RootPageState extends State<RootPage> {
   // values
   List<Metronome> metronomes = [
     Metronome(
-      tempo: 120,
-      beatsPerMeasure: 3,
+      tempo: 126,
+      beatsPerMeasure: 2,
       timeSignature: 4,
-      measures: -1,
+      measures: 5,
+    ),
+    Metronome(
+      tempo: 126,
+      beatsPerMeasure: 2,
+      timeSignature: 8,
+      measures: 1,
+    ),
+    Metronome(
+      tempo: 126,
+      beatsPerMeasure: 3,
+      timeSignature: 16,
+      measures: 1,
+    ),
+    Metronome(
+      tempo: 126,
+      beatsPerMeasure: 2,
+      timeSignature: 8,
+      measures: 1,
+    ),
+    Metronome(
+      tempo: 138,
+      beatsPerMeasure: 4,
+      timeSignature: 4,
+      measures: 2,
     ),
   ];
   int activeMetronome = 0; // index of active metronome
@@ -51,8 +75,8 @@ class _RootPageState extends State<RootPage> {
   int tempoPercent =
       100; // The tempo as a percent (e.g. 100 = normal tempo, 50 = half tempo)
   int beat = 1; // current beat
-  int totalMeasures = 0; // total measures played
-  int currentMeasure = 0; // current measure of metronome object
+  int totalMeasuresPlayed = 1; // total measures played
+  int currentMeasure = 1; // current measure of metronome object
 
   //timer
   Timer timer = Timer.periodic(
@@ -80,26 +104,68 @@ class _RootPageState extends State<RootPage> {
 
   void timerParms() {
     {
+      setState(() {
+        boxShadows[beat - 1] = const BoxShadow(
+          color: Colors.cyanAccent,
+          blurRadius: 12.0,
+          spreadRadius: 8.0,
+        );
+      });
       if (beat != metronomes[activeMetronome].beatsPerMeasure) {
-        setState(() {
-          beat += 1;
-          boxShadows[beat - 1] = const BoxShadow(
-            color: Colors.cyanAccent,
-            blurRadius: 12.0,
-            spreadRadius: 8.0,
-          );
-        });
         soundPlayer.play(low);
+        beat += 1;
       } else {
-        setState(() {
-          beat = 1;
-          boxShadows[beat - 1] = const BoxShadow(
-            color: Colors.cyanAccent,
-            blurRadius: 12.0,
-            spreadRadius: 8.0,
-          );
-        });
-        soundPlayer.play(high);
+        // if metronome is not the last one
+        if (activeMetronome != metronomes.length - 1) {
+          soundPlayer.play(high);
+        } else {
+          // metronome is the last one
+          // if not the last measure
+          if (currentMeasure != metronomes[activeMetronome].measures) {
+            soundPlayer.play(high);
+          }
+        }
+        beat = 1;
+        // if metronome is not infinite
+        if (metronomes[activeMetronome].measures != -1) {
+          // if metronome is not finished
+          if (metronomes[activeMetronome].measures != currentMeasure) {
+            currentMeasure += 1;
+            totalMeasuresPlayed += 1;
+          } else // metronome is finished
+          {
+            // if there are more metronomes
+            if (activeMetronome != metronomes.length - 1) {
+              activeMetronome += 1;
+              // restart timer for new metronome
+              timer.cancel();
+              timer = Timer.periodic(
+                  Duration(
+                      milliseconds: (getTime(
+                          metronomes[activeMetronome].tempo,
+                          tempoPercent,
+                          metronomes[activeMetronome].timeSignature))),
+                  (timer) => timerParms());
+              currentMeasure = 1;
+              totalMeasuresPlayed += 1;
+            } else // there are no more metronomes
+            {
+              // pause play button
+              isPlaying = false;
+              // stop the timer
+              timer.cancel();
+              // reset the metronome
+              currentMeasure = 1;
+              totalMeasuresPlayed = 1;
+              beat = 1;
+              activeMetronome = 0;
+            }
+          }
+        } else {
+          // metronome is infinite
+          currentMeasure += 1;
+          totalMeasuresPlayed += 1;
+        }
       }
     }
   }
@@ -207,7 +273,27 @@ class _RootPageState extends State<RootPage> {
                     children: [
                       Column(
                         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                        children: const [Text('Measure'), Text('1')],
+                        children: [
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                            children: [
+                              Text('Measure: $totalMeasuresPlayed'),
+                            ],
+                          ),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                            children: [
+                              Text('Section: ${(activeMetronome + 1)}'),
+                            ],
+                          ),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                            children: [
+                              Text('Tempo: '
+                                  '${(metronomes[activeMetronome].tempo)}'),
+                            ],
+                          ),
+                        ],
                       ),
                       const VerticalDivider(
                         thickness: 1,
@@ -215,7 +301,12 @@ class _RootPageState extends State<RootPage> {
                       ),
                       Column(
                         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                        children: const [Text('Time Signature'), Text('4/4')],
+                        children: [
+                          const Text('Time Signature'),
+                          Text(
+                              '${(metronomes[activeMetronome].beatsPerMeasure)}'
+                              '/${(metronomes[activeMetronome].timeSignature)}')
+                        ],
                       ),
                       const VerticalDivider(
                         thickness: 1,
@@ -328,6 +419,8 @@ class _RootPageState extends State<RootPage> {
                               timer.cancel();
                               isPlaying = false;
                               beat = 1;
+                              totalMeasuresPlayed = 1;
+                              currentMeasure = 1;
                             } else {
                               // start
                               soundPlayer.play(high);
