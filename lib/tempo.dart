@@ -9,11 +9,30 @@ class EditTempo extends StatefulWidget {
 }
 
 class EditTempoState extends State<EditTempo> {
+  // Create a list of items for the DropdownButton
+  final tempoDrop = List.generate(200 - 40 + 1, (index) => index + 40)
+      .map((tempo) => DropdownMenuItem<int>(
+            value: tempo,
+            child: Text(tempo.toString()),
+          ))
+      .toList();
+
+  final beatDrop = List.generate(12, (index) => index + 1)
+      .map((beatsPerMeasure) => DropdownMenuItem<int>(
+            value: beatsPerMeasure,
+            child: Text(beatsPerMeasure.toString()),
+          ))
+      .toList();
+
+  final timeDrop = [4, 8, 16, 32]
+      .map((timeSignature) => DropdownMenuItem<int>(
+            value: timeSignature,
+            child: Text(timeSignature.toString()),
+          ))
+      .toList();
+
   @override
   Widget build(BuildContext context) {
-    // TODO: Add a ListView to display the list of Metronome objects
-    // TODO: Add buttons to allow editing and deletion of Metronome objects
-
     return Scaffold(
       appBar: AppBar(
         title: const Text('Untitled'),
@@ -37,7 +56,6 @@ class EditTempoState extends State<EditTempo> {
                   children: <Widget>[
                     IconButton(
                       onPressed: () {
-                        // TODO: Add code to edit the metronome object
                         showDialog(
                             context: context,
                             builder: (context) {
@@ -48,13 +66,8 @@ class EditTempoState extends State<EditTempo> {
                                   // Add text fields or other widgets to
                                   // allow the user to enter the updated values
                                   DropdownButton<int>(
-                                    items: List.generate(
-                                            200 - 40 + 1, (index) => index + 40)
-                                        .map((tempo) => DropdownMenuItem<int>(
-                                              value: tempo,
-                                              child: Text(tempo.toString()),
-                                            ))
-                                        .toList(),
+                                    value: metronomes[index].tempo,
+                                    items: tempoDrop,
                                     onChanged: (value) {
                                       // Update the tempo value
                                       // in the metronomes list
@@ -66,15 +79,8 @@ class EditTempoState extends State<EditTempo> {
                                   Row(children: [
                                     const Text('Time Signature: '),
                                     DropdownButton<int>(
-                                      items: List.generate(
-                                              12, (index) => index + 1)
-                                          .map((beatsPerMeasure) =>
-                                              DropdownMenuItem<int>(
-                                                value: beatsPerMeasure,
-                                                child: Text(
-                                                    beatsPerMeasure.toString()),
-                                              ))
-                                          .toList(),
+                                      value: metronomes[index].beatsPerMeasure,
+                                      items: beatDrop,
                                       onChanged: (value) {
                                         // Update the beatsPerMeasure value
                                         // in the metronomes list
@@ -86,14 +92,8 @@ class EditTempoState extends State<EditTempo> {
                                     ),
                                     const Text('/'),
                                     DropdownButton<int>(
-                                      items: [4, 8, 16, 32]
-                                          .map((timeSignature) =>
-                                              DropdownMenuItem<int>(
-                                                value: timeSignature,
-                                                child: Text(
-                                                    timeSignature.toString()),
-                                              ))
-                                          .toList(),
+                                      value: metronomes[index].timeSignature,
+                                      items: timeDrop,
                                       onChanged: (value) {
                                         // Update the beatsPerMeasure value
                                         // in the metronomes list
