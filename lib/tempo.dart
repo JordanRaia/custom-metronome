@@ -31,6 +31,13 @@ class EditTempoState extends State<EditTempo> {
           ))
       .toList();
 
+  final measureDrop = List.generate(100, (index) => index + 1)
+      .map((measures) => DropdownMenuItem<int>(
+            value: measures,
+            child: Text(measures.toString()),
+          ))
+      .toList();
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -53,7 +60,14 @@ class EditTempoState extends State<EditTempo> {
                     '/${metronomes[index].timeSignature}'),
                 trailing: Row(
                   mainAxisSize: MainAxisSize.min,
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: <Widget>[
+                    Text(
+                      '${(metronomes[index].measures)}  ',
+                      style: const TextStyle(fontSize: 20),
+                    ),
+                    const Icon(Icons.queue_music),
+                    const Text('                 '),
                     IconButton(
                       onPressed: () {
                         showDialog(
@@ -65,16 +79,21 @@ class EditTempoState extends State<EditTempo> {
                                 children: <Widget>[
                                   // Add text fields or other widgets to
                                   // allow the user to enter the updated values
-                                  DropdownButton<int>(
-                                    value: metronomes[index].tempo,
-                                    items: tempoDrop,
-                                    onChanged: (value) {
-                                      // Update the tempo value
-                                      // in the metronomes list
-                                      setState(() {
-                                        metronomes[index].tempo = value!;
-                                      });
-                                    },
+                                  Row(
+                                    children: [
+                                      const Text('               Tempo: '),
+                                      DropdownButton<int>(
+                                        value: metronomes[index].tempo,
+                                        items: tempoDrop,
+                                        onChanged: (value) {
+                                          // Update the tempo value
+                                          // in the metronomes list
+                                          setState(() {
+                                            metronomes[index].tempo = value!;
+                                          });
+                                        },
+                                      )
+                                    ],
                                   ),
                                   Row(children: [
                                     const Text('Time Signature: '),
@@ -104,6 +123,22 @@ class EditTempoState extends State<EditTempo> {
                                       },
                                     )
                                   ]),
+                                  Row(
+                                    children: [
+                                      const Text('         Measures: '),
+                                      DropdownButton<int>(
+                                        value: metronomes[index].measures,
+                                        items: measureDrop,
+                                        onChanged: (value) {
+                                          // Update the tempo value
+                                          // in the metronomes list
+                                          setState(() {
+                                            metronomes[index].measures = value!;
+                                          });
+                                        },
+                                      )
+                                    ],
+                                  ),
                                   // Add more fields for the other
                                   // properties of the Metronome object
 
