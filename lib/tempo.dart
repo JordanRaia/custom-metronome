@@ -31,7 +31,8 @@ class EditTempoState extends State<EditTempo> {
           ))
       .toList();
 
-  final measureDrop = List.generate(100, (index) => index + 1)
+  final measureDrop = [-1]
+      .followedBy(List.generate(100, (index) => index + 1))
       .map((measures) => DropdownMenuItem<int>(
             value: measures,
             child: Text(measures.toString()),
