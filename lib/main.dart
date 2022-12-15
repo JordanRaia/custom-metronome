@@ -184,6 +184,13 @@ class _RootPageState extends State<RootPage> {
           IconButton(
             onPressed: () {
               setState(() {
+                if (isMute) {
+                  soundPlayer.setVolume(high, 1.0);
+                  soundPlayer.setVolume(low, 1.0);
+                } else {
+                  soundPlayer.setVolume(high, 0.0);
+                  soundPlayer.setVolume(low, 0.0);
+                }
                 isMute = !isMute;
               });
             },
@@ -296,11 +303,11 @@ class _RootPageState extends State<RootPage> {
             ),
             Container(
               color: Colors.black12,
-              height: newheight * 0.10,
+              height: newheight * 0.12,
               child: Container(
                 margin:
                     const EdgeInsets.only(left: 5.0, right: 5.0, bottom: 5.0),
-                height: newheight * 0.10,
+                height: newheight * 0.12,
                 decoration: BoxDecoration(
                   border: Border.all(color: Colors.black, width: 1),
                   color: Colors.white,
@@ -312,12 +319,14 @@ class _RootPageState extends State<RootPage> {
                     // TODO make a Text Button where you can choose what section
                     // to start on
                     Column(
-                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                       children: [
-                        const Text('Section'),
+                        TextButton(
+                          onPressed: () {},
+                          child: const Text('Section▼'),
+                        ),
                         Text(
                           getSection(sections, measure),
-                          style: const TextStyle(fontSize: 15),
+                          style: const TextStyle(fontSize: 18),
                         ),
                       ],
                     ),
@@ -328,12 +337,14 @@ class _RootPageState extends State<RootPage> {
                     // TODO make a Text Button where you can choose what measure
                     // to start on
                     Column(
-                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                       children: [
-                        const Text('Measure'),
+                        TextButton(
+                          onPressed: () {},
+                          child: const Text('Measure▼'),
+                        ),
                         Text(
                           '$measure',
-                          style: const TextStyle(fontSize: 25),
+                          style: const TextStyle(fontSize: 18),
                         ),
                       ],
                     ),
@@ -354,7 +365,7 @@ class _RootPageState extends State<RootPage> {
             // TODO AD space
             Container(
               color: Colors.black12,
-              height: newheight * (height < 512 ? 0.15 : 0.25) - 80,
+              height: newheight * (height < 512 ? 0.13 : 0.23) - 80,
             ),
             // play controls
             Container(
