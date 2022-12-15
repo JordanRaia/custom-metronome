@@ -9,6 +9,12 @@ class EditSection extends StatefulWidget {
 }
 
 class EditSectionState extends State<EditSection> {
+  // Edit a Section
+  void showEditSection(BuildContext context, int index, Section section) {
+    
+  }
+
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -28,6 +34,25 @@ class EditSectionState extends State<EditSection> {
             leading: const Icon(Icons.music_note),
             title: Text(sections[index].name.toString()),
             subtitle: Text(getMeasureRangeSection(sections, index)),
+            trailing: Row(
+                mainAxisSize: MainAxisSize.min,
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: <Widget>[
+                  IconButton(
+                    onPressed: () {
+                      // showEditSection(context, index, metronomes[index]);
+                    },
+                    icon: const Icon(Icons.edit),
+                  ),
+                  IconButton(
+                    onPressed: () {
+                      setState(() {
+                        sections.removeAt(index);
+                      });
+                    },
+                    icon: const Icon(Icons.delete),
+                  ),
+                ]),
           );
         },
       ),

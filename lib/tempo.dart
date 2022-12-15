@@ -288,19 +288,19 @@ class EditTempoState extends State<EditTempo> {
           itemBuilder: (context, index) {
             return ListTile(
                 leading: const Icon(Icons.music_note),
-                title: Text(metronomes[index].tempo.toString()),
-                subtitle: Text('${metronomes[index].beatsPerMeasure}'
-                    '/${metronomes[index].timeSignature}'),
+                title: Text((metronomes[index].tempo.toString())),
+                subtitle: Column(
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text('${metronomes[index].beatsPerMeasure}'
+                          '/${metronomes[index].timeSignature}'),
+                      Text(getMeasureRangeMetronome(metronomes, index)),
+                    ]),
                 trailing: Row(
                   mainAxisSize: MainAxisSize.min,
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: <Widget>[
-                    Text(
-                      getMeasureRangeMetronome(metronomes, index),
-                      style: const TextStyle(fontSize: 20),
-                    ),
-                    const Text('  '),
-                    const Icon(Icons.queue_music),
                     IconButton(
                       onPressed: () {
                         showEditTempo(context, index, metronomes[index]);
