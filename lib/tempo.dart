@@ -9,41 +9,271 @@ class EditTempo extends StatefulWidget {
 }
 
 class EditTempoState extends State<EditTempo> {
-  // Create a list of items for the DropdownButton
-  final tempoDrop = List.generate(200 - 40 + 1, (index) => index + 40)
-      .map((tempo) => DropdownMenuItem<int>(
-            value: tempo,
-            child: Text(tempo.toString()),
-          ))
-      .toList();
+  void showEditTempo(BuildContext context, int index, Metronome metronome) {
+    final tempoController =
+        TextEditingController(text: metronome.tempo.toString());
+    final beatsController =
+        TextEditingController(text: metronome.beatsPerMeasure.toString());
+    final timeController =
+        TextEditingController(text: metronome.timeSignature.toString());
+    final measuresController =
+        TextEditingController(text: metronome.measures.toString());
 
-  final beatDrop = List.generate(12, (index) => index + 1)
-      .map((beatsPerMeasure) => DropdownMenuItem<int>(
-            value: beatsPerMeasure,
-            child: Text(beatsPerMeasure.toString()),
-          ))
-      .toList();
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: Text('Metronome ${index + 1}'),
+          content: Column(mainAxisSize: MainAxisSize.min, children: <Widget>[
+            TextFormField(
+              controller: tempoController,
+              decoration: const InputDecoration(
+                labelText: 'Tempo',
+                hintText: 'Enter a tempo',
+              ),
+              keyboardType: TextInputType.number,
+            ),
+            Row(
+              children: <Widget>[
+                SizedBox(
+                  width: 50,
+                  child: DropdownButtonFormField(
+                    items: [
+                      '1',
+                      '2',
+                      '3',
+                      '4',
+                      '5',
+                      '6',
+                      '7',
+                      '8',
+                      '9',
+                      '10',
+                      '11',
+                      '12',
+                    ].map((beatsPerMeasure) {
+                      return DropdownMenuItem(
+                        value: beatsPerMeasure,
+                        child: Text(beatsPerMeasure),
+                      );
+                    }).toList(),
+                    onChanged: (value) {
+                      beatsController.text = value!;
+                    },
+                    decoration: const InputDecoration(
+                      labelText: 'Beats',
+                    ),
+                    value: metronome.beatsPerMeasure.toString(),
+                  ),
+                ),
+                const Text('/', style: TextStyle(fontSize: 40)),
+                SizedBox(
+                  width: 50,
+                  child: DropdownButtonFormField(
+                    items: [
+                      '4',
+                      '8',
+                      '16',
+                      '32',
+                    ].map((timeSignature) {
+                      return DropdownMenuItem(
+                        value: timeSignature,
+                        child: Text(timeSignature),
+                      );
+                    }).toList(),
+                    onChanged: (value) {
+                      timeController.text = value!;
+                    },
+                    decoration: const InputDecoration(
+                      labelText: 'Value',
+                    ),
+                    value: metronome.timeSignature.toString(),
+                  ),
+                ),
+              ],
+            ),
+            TextFormField(
+              controller: measuresController,
+              decoration: const InputDecoration(
+                labelText: 'Measures',
+                hintText: 'Enter the number of measures',
+              ),
+              keyboardType: TextInputType.number,
+            ),
+          ]),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              child: const Text('Cancel'),
+            ),
+            TextButton(
+              onPressed: () {
+                setState(() {
+                  int tempo =
+                      int.tryParse(tempoController.text) ?? defaultTempo;
+                  int beats = int.tryParse(beatsController.text) ??
+                      defaultBeatsPerMeasure;
+                  int time =
+                      int.tryParse(timeController.text) ?? defaultTimeSignature;
+                  int measures =
+                      int.tryParse(measuresController.text) ?? defaultMeasures;
 
-  final timeDrop = [4, 8, 16, 32]
-      .map((timeSignature) => DropdownMenuItem<int>(
-            value: timeSignature,
-            child: Text(timeSignature.toString()),
-          ))
-      .toList();
+                  metronomes[index] = Metronome(
+                    tempo: tempo,
+                    beatsPerMeasure: beats,
+                    timeSignature: time,
+                    measures: measures,
+                  );
+                });
+                Navigator.of(context).pop();
+              },
+              child: const Text('Save'),
+            ),
+          ],
+        );
+      },
+    );
+  }
 
-  final measureDrop = [-1]
-      .followedBy(List.generate(100, (index) => index + 1))
-      .map((measures) => DropdownMenuItem<int>(
-            value: measures,
-            child: Text(measures.toString()),
-          ))
-      .toList();
+  void showAddTempo(BuildContext context) {
+    final tempoController = TextEditingController();
+    final beatsController =
+        TextEditingController(text: defaultBeatsPerMeasure.toString());
+    final timeController =
+        TextEditingController(text: defaultTimeSignature.toString());
+    final measuresController = TextEditingController();
+
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: const Text('Add Metronome'),
+          content: Column(mainAxisSize: MainAxisSize.min, children: <Widget>[
+            TextFormField(
+              controller: tempoController,
+              decoration: const InputDecoration(
+                labelText: 'Tempo',
+                hintText: 'Enter a tempo',
+              ),
+              keyboardType: TextInputType.number,
+            ),
+            Row(
+              children: <Widget>[
+                SizedBox(
+                  width: 50,
+                  child: DropdownButtonFormField(
+                    items: [
+                      '1',
+                      '2',
+                      '3',
+                      '4',
+                      '5',
+                      '6',
+                      '7',
+                      '8',
+                      '9',
+                      '10',
+                      '11',
+                      '12',
+                    ].map((beatsPerMeasure) {
+                      return DropdownMenuItem(
+                        value: beatsPerMeasure,
+                        child: Text(beatsPerMeasure),
+                      );
+                    }).toList(),
+                    onChanged: (value) {
+                      beatsController.text = value!;
+                    },
+                    decoration: const InputDecoration(
+                      labelText: 'Beats',
+                    ),
+                  ),
+                ),
+                const Text('/', style: TextStyle(fontSize: 40)),
+                SizedBox(
+                  width: 50,
+                  child: DropdownButtonFormField(
+                    items: [
+                      '4',
+                      '8',
+                      '16',
+                      '32',
+                    ].map((timeSignature) {
+                      return DropdownMenuItem(
+                        value: timeSignature,
+                        child: Text(timeSignature),
+                      );
+                    }).toList(),
+                    onChanged: (value) {
+                      timeController.text = value!;
+                    },
+                    decoration: const InputDecoration(
+                      labelText: 'Value',
+                    ),
+                  ),
+                ),
+              ],
+            ),
+            TextFormField(
+              controller: measuresController,
+              decoration: const InputDecoration(
+                labelText: 'Measures',
+                hintText: 'Enter the number of measures',
+              ),
+              keyboardType: TextInputType.number,
+            ),
+          ]),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              child: const Text('Cancel'),
+            ),
+            TextButton(
+              onPressed: () {
+                setState(() {
+                  int tempo =
+                      int.tryParse(tempoController.text) ?? defaultTempo;
+                  int beats = int.tryParse(beatsController.text) ??
+                      defaultBeatsPerMeasure;
+                  int time =
+                      int.tryParse(timeController.text) ?? defaultTimeSignature;
+                  int measures =
+                      int.tryParse(measuresController.text) ?? defaultMeasures;
+
+                  metronomes.add(Metronome(
+                    tempo: tempo,
+                    beatsPerMeasure: beats,
+                    timeSignature: time,
+                    measures: measures,
+                  ));
+                });
+                Navigator.of(context).pop();
+              },
+              child: const Text('Save'),
+            ),
+          ],
+        );
+      },
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Untitled'),
+        actions: [
+          IconButton(
+            onPressed: () {
+              showAddTempo(context);
+            },
+            icon: const Icon(Icons.add),
+          ),
+        ],
         leading: IconButton(
           onPressed: () {
             Navigator.of(context).pop();
@@ -55,7 +285,13 @@ class EditTempoState extends State<EditTempo> {
           itemCount: metronomes.length,
           itemBuilder: (context, index) {
             return ListTile(
-                leading: const Icon(Icons.music_note),
+                leading: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text('${(index + 1)}'),
+                    const Icon(Icons.music_note),
+                  ],
+                ),
                 title: Text(metronomes[index].tempo.toString()),
                 subtitle: Text('${metronomes[index].beatsPerMeasure}'
                     '/${metronomes[index].timeSignature}'),
@@ -71,89 +307,7 @@ class EditTempoState extends State<EditTempo> {
                     const Text('                 '),
                     IconButton(
                       onPressed: () {
-                        showDialog(
-                            context: context,
-                            builder: (context) {
-                              return Dialog(
-                                  child: Column(
-                                mainAxisSize: MainAxisSize.min,
-                                children: <Widget>[
-                                  // Add text fields or other widgets to
-                                  // allow the user to enter the updated values
-                                  Row(
-                                    children: [
-                                      const Text('               Tempo: '),
-                                      DropdownButton<int>(
-                                        value: metronomes[index].tempo,
-                                        items: tempoDrop,
-                                        onChanged: (value) {
-                                          // Update the tempo value
-                                          // in the metronomes list
-                                          setState(() {
-                                            metronomes[index].tempo = value!;
-                                          });
-                                        },
-                                      )
-                                    ],
-                                  ),
-                                  Row(children: [
-                                    const Text('Time Signature: '),
-                                    DropdownButton<int>(
-                                      value: metronomes[index].beatsPerMeasure,
-                                      items: beatDrop,
-                                      onChanged: (value) {
-                                        // Update the beatsPerMeasure value
-                                        // in the metronomes list
-                                        setState(() {
-                                          metronomes[index].beatsPerMeasure =
-                                              value!;
-                                        });
-                                      },
-                                    ),
-                                    const Text('/'),
-                                    DropdownButton<int>(
-                                      value: metronomes[index].timeSignature,
-                                      items: timeDrop,
-                                      onChanged: (value) {
-                                        // Update the beatsPerMeasure value
-                                        // in the metronomes list
-                                        setState(() {
-                                          metronomes[index].timeSignature =
-                                              value!;
-                                        });
-                                      },
-                                    )
-                                  ]),
-                                  Row(
-                                    children: [
-                                      const Text('         Measures: '),
-                                      DropdownButton<int>(
-                                        value: metronomes[index].measures,
-                                        items: measureDrop,
-                                        onChanged: (value) {
-                                          // Update the tempo value
-                                          // in the metronomes list
-                                          setState(() {
-                                            metronomes[index].measures = value!;
-                                          });
-                                        },
-                                      )
-                                    ],
-                                  ),
-                                  // Add more fields for the other
-                                  // properties of the Metronome object
-
-                                  // Add a save button to save
-                                  // the updated values
-                                  TextButton(
-                                    onPressed: () {
-                                      Navigator.of(context).pop();
-                                    },
-                                    child: const Text('Save'),
-                                  ),
-                                ],
-                              ));
-                            });
+                        showEditTempo(context, index, metronomes[index]);
                       },
                       icon: const Icon(Icons.edit),
                     ),

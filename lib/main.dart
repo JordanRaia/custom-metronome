@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:custom_metronome/sections.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:soundpool/soundpool.dart';
@@ -20,6 +21,7 @@ class MyApp extends StatelessWidget {
       home: const RootPage(),
       routes: {
         '/tempo': (context) => const EditTempo(),
+        '/section': (context) => const EditSection(),
       },
     );
   }
@@ -242,29 +244,27 @@ class _RootPageState extends State<RootPage> {
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                     children: [
-                      Column(
-                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                        children: [
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                            children: [
-                              Text('Measure: $totalMeasuresPlayed'),
-                            ],
-                          ),
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                            children: [
-                              Text('Section: ${(activeMetronome + 1)}'),
-                            ],
-                          ),
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                            children: [
-                              Text('Tempo: '
-                                  '${(metronomes[activeMetronome].tempo)}'),
-                            ],
-                          ),
-                        ],
+                      TextButton(
+                        onPressed: () {
+                          Navigator.pushNamed(context, '/section');
+                        },
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                          children: [
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                              children: [
+                                Text('Measure: $totalMeasuresPlayed'),
+                              ],
+                            ),
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                              children: [
+                                Text('Section: ${(activeMetronome + 1)}'),
+                              ],
+                            ),
+                          ],
+                        ),
                       ),
                       const VerticalDivider(
                         thickness: 1,
@@ -273,10 +273,22 @@ class _RootPageState extends State<RootPage> {
                       Column(
                         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                         children: [
-                          const Text('Time Signature'),
-                          Text(
-                              '${(metronomes[activeMetronome].beatsPerMeasure)}'
-                              '/${(metronomes[activeMetronome].timeSignature)}')
+                          Column(
+                            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                            children: [
+                              Row(
+                                children: [
+                                  Text('Tempo: '
+                                      '${(metronomes[activeMetronome].tempo)}'),
+                                ],
+                              ),
+                              const Text('   '),
+                              const Text('Time Signature'),
+                              Text(
+                                  '${(metronomes[activeMetronome].beatsPerMeasure)}'
+                                  '/${(metronomes[activeMetronome].timeSignature)}')
+                            ],
+                          ),
                         ],
                       ),
                       const VerticalDivider(
