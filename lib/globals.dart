@@ -1,4 +1,7 @@
 // global variable that holds the List of Metronome objects
+import 'package:flutter/material.dart';
+
+// testing metronomes
 List<Metronome> metronomes = [
   Metronome(
     tempo: 138,
@@ -164,6 +167,7 @@ List<Metronome> metronomes = [
   ),
 ];
 
+// testing section
 List<Section> sections = [
   Section(
     name: 'Intro',
@@ -262,6 +266,31 @@ class Metronome {
     this.timeSignature = 4,
     this.measures = -1,
   });
+}
+
+String getMeasureRange(List<Metronome> metronomes, int index) {
+  int totalMeasures = 0;
+  for (int i = 0; i < metronomes.length; i++) {
+    // not the current metronome
+    if (i != index) {
+      totalMeasures += metronomes[i].measures;
+    } else // current metronome
+    {
+      String range = '';
+      if ((totalMeasures + 1) != (totalMeasures + metronomes[i].measures)) {
+        range =
+            '${(totalMeasures + 1)} - ${totalMeasures + metronomes[i].measures}';
+      } else {
+        range = '${(totalMeasures + 1)}';
+      }
+
+      return range;
+    }
+  }
+
+  // error
+  debugPrint('Error: getMeasureRange(): index out of range');
+  return '';
 }
 
 int defaultTempo = 120;

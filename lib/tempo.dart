@@ -9,6 +9,7 @@ class EditTempo extends StatefulWidget {
 }
 
 class EditTempoState extends State<EditTempo> {
+  // Edit a Metronome
   void showEditTempo(BuildContext context, int index, Metronome metronome) {
     final tempoController =
         TextEditingController(text: metronome.tempo.toString());
@@ -137,6 +138,7 @@ class EditTempoState extends State<EditTempo> {
     );
   }
 
+  // Add a new Meronome
   void showAddTempo(BuildContext context) {
     final tempoController = TextEditingController();
     final beatsController =
@@ -285,13 +287,7 @@ class EditTempoState extends State<EditTempo> {
           itemCount: metronomes.length,
           itemBuilder: (context, index) {
             return ListTile(
-                leading: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Text('${(index + 1)}'),
-                    const Icon(Icons.music_note),
-                  ],
-                ),
+                leading: const Icon(Icons.music_note),
                 title: Text(metronomes[index].tempo.toString()),
                 subtitle: Text('${metronomes[index].beatsPerMeasure}'
                     '/${metronomes[index].timeSignature}'),
@@ -300,11 +296,11 @@ class EditTempoState extends State<EditTempo> {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: <Widget>[
                     Text(
-                      '${(metronomes[index].measures)}  ',
+                      getMeasureRange(metronomes, index),
                       style: const TextStyle(fontSize: 20),
                     ),
+                    const Text('  '),
                     const Icon(Icons.queue_music),
-                    const Text('                 '),
                     IconButton(
                       onPressed: () {
                         showEditTempo(context, index, metronomes[index]);
