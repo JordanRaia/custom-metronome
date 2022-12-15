@@ -1,5 +1,7 @@
 // global variable that holds the List of Metronome objects
 import 'package:flutter/material.dart';
+import 'dart:io';
+import 'package:path_provider/path_provider.dart';
 
 // testing metronomes
 List<Metronome> metronomes = [
@@ -247,6 +249,7 @@ List<Section> sections = [
   ),
 ];
 
+// metronome object
 class Metronome {
   // beats per minute
   int tempo;
@@ -268,6 +271,7 @@ class Metronome {
   });
 }
 
+// get the measure range for a metronome
 String getMeasureRangeMetronome(List<Metronome> metronomes, int index) {
   int totalMeasures = 0;
   for (int i = 0; i < metronomes.length; i++) {
@@ -302,6 +306,7 @@ int defaultBeatsPerMeasure = 4;
 int defaultTimeSignature = 4;
 int defaultMeasures = -1;
 
+// section object
 class Section {
   // name of the section
   String name;
@@ -317,6 +322,7 @@ class Section {
 
 String defaultName = 'Untitled Section';
 
+// get the measure range for a section
 String getMeasureRangeSection(List<Section> sections, int index) {
   int totalMeasures = 0;
   for (int i = 0; i < sections.length; i++) {
@@ -346,13 +352,12 @@ String getMeasureRangeSection(List<Section> sections, int index) {
   return '';
 }
 
-String getSection(List<Section> sections, int measure)
-{
+// get the section from a measure number
+String getSection(List<Section> sections, int measure) {
   int totalMeasures = 0;
   for (int i = 0; i < sections.length; i++) {
     totalMeasures += sections[i].measures;
-    if (measure <= totalMeasures)
-    {
+    if (measure <= totalMeasures) {
       return sections[i].name;
     }
   }
@@ -360,4 +365,16 @@ String getSection(List<Section> sections, int measure)
   // error
   debugPrint('Error: getSection(): measure out of range');
   return '';
+}
+
+// get local path on system
+Future<String> get _localPath async {
+  final directory = await getApplicationDocumentsDirectory();
+
+  return directory.path;
+}
+
+Future<File> get _localFile async {
+  final path = await _localPath;
+  return File('$path/data.json');
 }

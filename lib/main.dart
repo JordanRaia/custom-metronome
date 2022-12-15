@@ -35,6 +35,8 @@ class RootPage extends StatefulWidget {
 }
 
 class _RootPageState extends State<RootPage> {
+  //sharedPrefs
+
   // colors
   var playColor = Colors.black;
   // metronome bool
@@ -171,6 +173,11 @@ class _RootPageState extends State<RootPage> {
         actions: [
           IconButton(
             onPressed: () {},
+            icon: const Icon(Icons.save_alt),
+            color: Colors.white,
+          ),
+          IconButton(
+            onPressed: () {},
             icon: const Icon(Icons.save),
             color: Colors.white,
           ),
@@ -302,13 +309,15 @@ class _RootPageState extends State<RootPage> {
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                   children: [
+                    // TODO make a Text Button where you can choose what section
+                    // to start on
                     Column(
                       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                       children: [
                         const Text('Section'),
                         Text(
                           getSection(sections, measure),
-                          style: const TextStyle(fontSize: 25),
+                          style: const TextStyle(fontSize: 15),
                         ),
                       ],
                     ),
@@ -316,6 +325,8 @@ class _RootPageState extends State<RootPage> {
                       thickness: 1,
                       color: Colors.black,
                     ),
+                    // TODO make a Text Button where you can choose what measure
+                    // to start on
                     Column(
                       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                       children: [
@@ -436,6 +447,7 @@ class _RootPageState extends State<RootPage> {
                               beat = 1;
                               measure = 1;
                               currentMeasure = 1;
+                              activeMetronome = 0;
                             } else {
                               // start
                               soundPlayer.play(high);
