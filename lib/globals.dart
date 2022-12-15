@@ -345,3 +345,19 @@ String getMeasureRangeSection(List<Section> sections, int index) {
   debugPrint('Error: getMeasureRange(): index out of range');
   return '';
 }
+
+String getSection(List<Section> sections, int measure)
+{
+  int totalMeasures = 0;
+  for (int i = 0; i < sections.length; i++) {
+    totalMeasures += sections[i].measures;
+    if (measure <= totalMeasures)
+    {
+      return sections[i].name;
+    }
+  }
+
+  // error
+  debugPrint('Error: getSection(): measure out of range');
+  return '';
+}

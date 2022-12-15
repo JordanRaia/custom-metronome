@@ -48,7 +48,7 @@ class _RootPageState extends State<RootPage> {
   int tempoPercent =
       100; // The tempo as a percent (e.g. 100 = normal tempo, 50 = half tempo)
   int beat = 1; // current beat
-  int totalMeasuresPlayed = 1; // total measures played
+  int measure = 1; // total measures played
   int currentMeasure = 1; // current measure of metronome object
 
   //timer
@@ -104,7 +104,7 @@ class _RootPageState extends State<RootPage> {
           // if metronome is not finished
           if (metronomes[activeMetronome].measures != currentMeasure) {
             currentMeasure += 1;
-            totalMeasuresPlayed += 1;
+            measure += 1;
           } else // metronome is finished
           {
             // if there are more metronomes
@@ -120,7 +120,7 @@ class _RootPageState extends State<RootPage> {
                           metronomes[activeMetronome].timeSignature))),
                   (timer) => timerParms());
               currentMeasure = 1;
-              totalMeasuresPlayed += 1;
+              measure += 1;
             } else // there are no more metronomes
             {
               // pause play button
@@ -129,7 +129,7 @@ class _RootPageState extends State<RootPage> {
               timer.cancel();
               // reset the metronome
               currentMeasure = 1;
-              totalMeasuresPlayed = 1;
+              measure = 1;
               beat = 1;
               activeMetronome = 0;
             }
@@ -137,7 +137,7 @@ class _RootPageState extends State<RootPage> {
         } else {
           // metronome is infinite
           currentMeasure += 1;
-          totalMeasuresPlayed += 1;
+          measure += 1;
         }
       }
     }
@@ -193,10 +193,12 @@ class _RootPageState extends State<RootPage> {
       body: Scaffold(
         body: Column(
           children: [
+            // blue line
             Container(
               padding: const EdgeInsets.all(2.0),
               color: Colors.cyan,
             ),
+            // metronome display
             Container(
               padding: const EdgeInsets.all(10.0),
               color: Colors.black,
@@ -229,6 +231,7 @@ class _RootPageState extends State<RootPage> {
                 ),
               ),
             ),
+            // metronome controls
             Container(
               color: Colors.black12,
               child: Container(
@@ -244,27 +247,15 @@ class _RootPageState extends State<RootPage> {
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                     children: [
-                      TextButton(
-                        onPressed: () {
-                          Navigator.pushNamed(context, '/section');
-                        },
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                          children: [
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                              children: [
-                                Text('Measure: $totalMeasuresPlayed'),
-                              ],
-                            ),
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                              children: [
-                                Text('Section: ${(activeMetronome + 1)}'),
-                              ],
-                            ),
-                          ],
-                        ),
+                      Column(
+                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                        children: [
+                          const Text('BPM'),
+                          Text(
+                            '${(metronomes[activeMetronome].tempo)}',
+                            style: const TextStyle(fontSize: 25),
+                          ),
+                        ],
                       ),
                       const VerticalDivider(
                         thickness: 1,
@@ -273,22 +264,12 @@ class _RootPageState extends State<RootPage> {
                       Column(
                         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                         children: [
-                          Column(
-                            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                            children: [
-                              Row(
-                                children: [
-                                  Text('Tempo: '
-                                      '${(metronomes[activeMetronome].tempo)}'),
-                                ],
-                              ),
-                              const Text('   '),
-                              const Text('Time Signature'),
-                              Text(
-                                  '${(metronomes[activeMetronome].beatsPerMeasure)}'
-                                  '/${(metronomes[activeMetronome].timeSignature)}')
-                            ],
-                          ),
+                          const Text('Time Signature'),
+                          Text(
+                            '${(metronomes[activeMetronome].beatsPerMeasure)}'
+                            '/${(metronomes[activeMetronome].timeSignature)}',
+                            style: const TextStyle(fontSize: 25),
+                          )
                         ],
                       ),
                       const VerticalDivider(
@@ -308,8 +289,63 @@ class _RootPageState extends State<RootPage> {
             ),
             Container(
               color: Colors.black12,
-              height: newheight * (height < 512 ? 0.25 : 0.35) - 80,
+              height: newheight * 0.10,
+              child: Container(
+                margin:
+                    const EdgeInsets.only(left: 5.0, right: 5.0, bottom: 5.0),
+                height: newheight * 0.10,
+                decoration: BoxDecoration(
+                  border: Border.all(color: Colors.black, width: 1),
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(16.0),
+                ),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  children: [
+                    Column(
+                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                      children: [
+                        const Text('Section'),
+                        Text(
+                          getSection(sections, measure),
+                          style: const TextStyle(fontSize: 25),
+                        ),
+                      ],
+                    ),
+                    const VerticalDivider(
+                      thickness: 1,
+                      color: Colors.black,
+                    ),
+                    Column(
+                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                      children: [
+                        const Text('Measure'),
+                        Text(
+                          '$measure',
+                          style: const TextStyle(fontSize: 25),
+                        ),
+                      ],
+                    ),
+                    const VerticalDivider(
+                      thickness: 1,
+                      color: Colors.black,
+                    ),
+                    IconButton(
+                      onPressed: () {
+                        Navigator.pushNamed(context, '/section');
+                      },
+                      icon: const Icon(Icons.edit),
+                    ),
+                  ],
+                ),
+              ),
             ),
+            // TODO AD space
+            Container(
+              color: Colors.black12,
+              height: newheight * (height < 512 ? 0.15 : 0.25) - 80,
+            ),
+            // play controls
             Container(
               color: Colors.black12,
               child: Container(
@@ -398,7 +434,7 @@ class _RootPageState extends State<RootPage> {
                               timer.cancel();
                               isPlaying = false;
                               beat = 1;
-                              totalMeasuresPlayed = 1;
+                              measure = 1;
                               currentMeasure = 1;
                             } else {
                               // start
