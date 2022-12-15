@@ -27,7 +27,7 @@ class EditSectionState extends State<EditSection> {
           return ListTile(
             leading: const Icon(Icons.music_note),
             title: Text(sections[index].name.toString()),
-            subtitle: Text('${sections[index].measures}'),
+            subtitle: Text(getMeasureRangeSection(sections, index)),
           );
         },
       ),

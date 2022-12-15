@@ -268,7 +268,7 @@ class Metronome {
   });
 }
 
-String getMeasureRange(List<Metronome> metronomes, int index) {
+String getMeasureRangeMetronome(List<Metronome> metronomes, int index) {
   int totalMeasures = 0;
   for (int i = 0; i < metronomes.length; i++) {
     // not the current metronome
@@ -309,4 +309,29 @@ class Section {
     this.name = 'Untitled Section',
     this.measures = -1,
   });
+}
+
+String getMeasureRangeSection(List<Section> sections, int index) {
+  int totalMeasures = 0;
+  for (int i = 0; i < sections.length; i++) {
+    // not the current metronome
+    if (i != index) {
+      totalMeasures += sections[i].measures;
+    } else // current metronome
+    {
+      String range = '';
+      if ((totalMeasures + 1) != (totalMeasures + sections[i].measures)) {
+        range =
+            '${(totalMeasures + 1)} - ${totalMeasures + sections[i].measures}';
+      } else {
+        range = '${(totalMeasures + 1)}';
+      }
+
+      return range;
+    }
+  }
+
+  // error
+  debugPrint('Error: getMeasureRange(): index out of range');
+  return '';
 }

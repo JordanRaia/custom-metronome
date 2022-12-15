@@ -296,7 +296,7 @@ class EditTempoState extends State<EditTempo> {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: <Widget>[
                     Text(
-                      getMeasureRange(metronomes, index),
+                      getMeasureRangeMetronome(metronomes, index),
                       style: const TextStyle(fontSize: 20),
                     ),
                     const Text('  '),
