@@ -277,11 +277,15 @@ String getMeasureRangeMetronome(List<Metronome> metronomes, int index) {
     } else // current metronome
     {
       String range = '';
-      if ((totalMeasures + 1) != (totalMeasures + metronomes[i].measures)) {
-        range =
-            '${(totalMeasures + 1)} - ${totalMeasures + metronomes[i].measures}';
+      if (metronomes[i].measures != -1) {
+        if ((totalMeasures + 1) != (totalMeasures + metronomes[i].measures)) {
+          range =
+              '${(totalMeasures + 1)} - ${totalMeasures + metronomes[i].measures}';
+        } else {
+          range = '${(totalMeasures + 1)}';
+        }
       } else {
-        range = '${(totalMeasures + 1)}';
+        range = '${(totalMeasures + 1)} - ∞';
       }
 
       return range;
@@ -311,6 +315,8 @@ class Section {
   });
 }
 
+String defaultName = 'Untitled Section';
+
 String getMeasureRangeSection(List<Section> sections, int index) {
   int totalMeasures = 0;
   for (int i = 0; i < sections.length; i++) {
@@ -320,11 +326,15 @@ String getMeasureRangeSection(List<Section> sections, int index) {
     } else // current metronome
     {
       String range = '';
-      if ((totalMeasures + 1) != (totalMeasures + sections[i].measures)) {
-        range =
-            '${(totalMeasures + 1)} - ${totalMeasures + sections[i].measures}';
+      if (sections[i].measures != -1) {
+        if ((totalMeasures + 1) != (totalMeasures + sections[i].measures)) {
+          range =
+              '${(totalMeasures + 1)} - ${totalMeasures + sections[i].measures}';
+        } else {
+          range = '${(totalMeasures + 1)}';
+        }
       } else {
-        range = '${(totalMeasures + 1)}';
+        range = '${(totalMeasures + 1)} - ∞';
       }
 
       return range;

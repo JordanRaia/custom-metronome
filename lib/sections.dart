@@ -61,6 +61,64 @@ class EditSectionState extends State<EditSection> {
         });
   }
 
+  // add a new section
+  void showAddSection(BuildContext context) {
+    final nameController = TextEditingController();
+    final measuresController = TextEditingController();
+
+    showDialog(
+        context: context,
+        builder: (context) {
+          return AlertDialog(
+            title: const Text('Add Section'),
+            content: Column(mainAxisSize: MainAxisSize.min, children: <Widget>[
+              TextFormField(
+                controller: nameController,
+                decoration: const InputDecoration(
+                  labelText: 'Name',
+                  hintText: 'Enter a name for this section',
+                ),
+                keyboardType: TextInputType.text,
+              ),
+              TextFormField(
+                controller: measuresController,
+                decoration: const InputDecoration(
+                  labelText: 'Measures',
+                  hintText: 'Enter the number of measures',
+                ),
+                keyboardType: TextInputType.number,
+              ),
+            ]),
+            actions: [
+              TextButton(
+                onPressed: () {
+                  Navigator.of(context).pop();
+                },
+                child: const Text('Cancel'),
+              ),
+              TextButton(
+                onPressed: () {
+                  setState(() {
+                    String name = '';
+                    if (nameController.text == '') {
+                      name = defaultName;
+                    } else {
+                      name = nameController.text;
+                    }
+                    int measures = int.tryParse(measuresController.text) ??
+                        defaultMeasures;
+
+                    sections.add(Section(name: name, measures: measures));
+                  });
+                  Navigator.of(context).pop();
+                },
+                child: const Text('Save'),
+              ),
+            ],
+          );
+        });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -72,6 +130,14 @@ class EditSectionState extends State<EditSection> {
           },
           icon: const Icon(Icons.arrow_back),
         ),
+        actions: [
+          IconButton(
+            onPressed: () {
+              showAddSection(context);
+            },
+            icon: const Icon(Icons.add),
+          ),
+        ],
       ),
       body: ListView.builder(
         itemCount: sections.length,
