@@ -292,14 +292,14 @@ class Metronome {
   // bottom of the time signature, for example the 4 in 3/4
   int timeSignature;
 
-  // number of measures to play, with -1 indicating infinite measures
+  // number of measures to play, with 0 indicating infinite measures
   int measures;
 
   Metronome({
     this.tempo = 120,
     this.beatsPerMeasure = 4,
     this.timeSignature = 4,
-    this.measures = -1,
+    this.measures = 0,
   });
 }
 
@@ -327,7 +327,7 @@ String getMeasureRangeMetronome(List<Metronome> metronomes, int index) {
     } else // current metronome
     {
       String range = '';
-      if (metronomes[i].measures != -1) {
+      if (metronomes[i].measures != 0) {
         if ((totalMeasures + 1) != (totalMeasures + metronomes[i].measures)) {
           range =
               '${(totalMeasures + 1)} - ${totalMeasures + metronomes[i].measures}';
@@ -403,7 +403,10 @@ int getMetronomeIndex(List<Metronome> metronomes, int measure) {
 int defaultTempo = 120;
 int defaultBeatsPerMeasure = 4;
 int defaultTimeSignature = 4;
-int defaultMeasures = -1;
+int defaultMeasures = 0;
+
+// default custom metronome
+String defaultMetronomeName = 'Untitled Metronome';
 
 // user start time
 int userMeasure = 1;
@@ -413,12 +416,12 @@ class Section {
   // name of the section
   String name;
 
-  // number of measures in the section, -1 indicates infinite measures
+  // number of measures in the section, 0 indicates infinite measures
   int measures;
 
   Section({
     this.name = 'Untitled Section',
-    this.measures = -1,
+    this.measures = 0,
   });
 }
 
@@ -444,7 +447,7 @@ String getMeasureRangeSection(List<Section> sections, int index) {
     } else // current metronome
     {
       String range = '';
-      if (sections[i].measures != -1) {
+      if (sections[i].measures != 0) {
         if ((totalMeasures + 1) != (totalMeasures + sections[i].measures)) {
           range =
               '${(totalMeasures + 1)} - ${totalMeasures + sections[i].measures}';
@@ -490,7 +493,7 @@ int getSectionIndex(List<Section> sections, int measure) {
 
   // error
   debugPrint('Error: getSectionIndex(): measure out of range');
-  return -1;
+  return 0;
 }
 
 List<String> getSectionNames(List<Section> sections) {

@@ -10,10 +10,9 @@ class EditMetronome extends StatefulWidget {
 
 class EditMetronomeState extends State<EditMetronome> {
   // Edit a Section
-  void showEditMetronome(BuildContext context, int index, Section section) {
-    final nameController = TextEditingController(text: section.name);
-    final measuresController =
-        TextEditingController(text: section.measures.toString());
+  void showEditMetronome(
+      BuildContext context, int index, CustomMetronome metronome) {
+    final nameController = TextEditingController(text: metronome.name);
 
     showDialog(
         context: context,
@@ -29,14 +28,6 @@ class EditMetronomeState extends State<EditMetronome> {
                 ),
                 keyboardType: TextInputType.text,
               ),
-              TextFormField(
-                controller: measuresController,
-                decoration: const InputDecoration(
-                  labelText: 'Measures',
-                  hintText: 'Enter the number of measures',
-                ),
-                keyboardType: TextInputType.number,
-              ),
             ]),
             actions: [
               TextButton(
@@ -48,9 +39,7 @@ class EditMetronomeState extends State<EditMetronome> {
               TextButton(
                 onPressed: () {
                   setState(() {
-                    sections[index].name = nameController.text;
-                    sections[index].measures =
-                        int.parse(measuresController.text);
+                    userData.metronomeData[index].name = nameController.text;
                   });
                   Navigator.of(context).pop();
                 },
@@ -61,62 +50,76 @@ class EditMetronomeState extends State<EditMetronome> {
         });
   }
 
-  // add a new section
   void showAddSection(BuildContext context) {
     final nameController = TextEditingController();
-    final measuresController = TextEditingController();
 
     showDialog(
-        context: context,
-        builder: (context) {
-          return AlertDialog(
-            title: const Text('Add Section'),
-            content: Column(mainAxisSize: MainAxisSize.min, children: <Widget>[
-              TextFormField(
-                controller: nameController,
-                decoration: const InputDecoration(
-                  labelText: 'Name',
-                  hintText: 'Enter a name for this section',
-                ),
-                keyboardType: TextInputType.text,
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: const Text('Add Section'),
+          content: Column(mainAxisSize: MainAxisSize.min, children: <Widget>[
+            TextFormField(
+              controller: nameController,
+              decoration: const InputDecoration(
+                labelText: 'Name',
+                hintText: 'Enter a name for this section',
               ),
-              TextFormField(
-                controller: measuresController,
-                decoration: const InputDecoration(
-                  labelText: 'Measures',
-                  hintText: 'Enter the number of measures',
-                ),
-                keyboardType: TextInputType.number,
-              ),
-            ]),
-            actions: [
-              TextButton(
-                onPressed: () {
-                  Navigator.of(context).pop();
-                },
-                child: const Text('Cancel'),
-              ),
-              TextButton(
-                onPressed: () {
-                  setState(() {
+              keyboardType: TextInputType.text,
+            ),
+          ]),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              child: const Text('Cancel'),
+            ),
+            TextButton(
+              onPressed: () {
+                setState(
+                  () {
                     String name = '';
                     if (nameController.text == '') {
-                      name = defaultName;
+                      name = defaultMetronomeName;
                     } else {
                       name = nameController.text;
                     }
-                    int measures = int.tryParse(measuresController.text) ??
-                        defaultMeasures;
 
-                    sections.add(Section(name: name, measures: measures));
-                  });
-                  Navigator.of(context).pop();
-                },
-                child: const Text('Save'),
-              ),
-            ],
-          );
-        });
+                    userData.metronomeData.add(
+                      CustomMetronome(
+                        name: name,
+                        metronomes: [
+                          Metronome(
+                            tempo: defaultTempo,
+                            beatsPerMeasure: defaultBeatsPerMeasure,
+                            timeSignature: defaultTimeSignature,
+                            measures: defaultMeasures,
+                          ),
+                        ],
+                      ),
+                    );
+
+                    userData.sectionData.add(CustomSection(sections: [
+                      Section(),
+                    ]));
+
+                    // metronomes = userData
+                    //     .metronomeData[userData.metronomeData.length - 1]
+                    //     .metronomes;
+
+                    // sections = userData
+                    //     .sectionData[userData.sectionData.length - 1].sections;
+                  },
+                );
+                Navigator.of(context).pop();
+              },
+              child: const Text('Save'),
+            ),
+          ],
+        );
+      },
+    );
   }
 
   @override
@@ -140,26 +143,30 @@ class EditMetronomeState extends State<EditMetronome> {
         ],
       ),
       body: ListView.builder(
-        itemCount: sections.length,
+        itemCount: userData.metronomeData.length,
         itemBuilder: (context, index) {
           return ListTile(
             leading: const Icon(Icons.music_note),
-            title: Text(sections[index].name.toString()),
-            subtitle: Text(getMeasureRangeSection(sections, index)),
+            title: Text(userData.metronomeData[index].name),
             trailing: Row(
                 mainAxisSize: MainAxisSize.min,
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: <Widget>[
                   IconButton(
                     onPressed: () {
-                      showEditMetronome(context, index, sections[index]);
+                      showEditMetronome(
+                          context, index, userData.metronomeData[index]);
                     },
                     icon: const Icon(Icons.edit),
                   ),
                   IconButton(
                     onPressed: () {
                       setState(() {
-                        sections.removeAt(index);
+                        if (userData.metronomeData.length == 1) {
+                          return;
+                        } else {
+                          userData.metronomeData.removeAt(index);
+                        }
                       });
                     },
                     icon: const Icon(Icons.delete),

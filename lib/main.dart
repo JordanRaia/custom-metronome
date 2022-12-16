@@ -23,7 +23,7 @@ class MyApp extends StatelessWidget {
       routes: {
         '/tempo': (context) => const EditTempo(),
         '/section': (context) => const EditSection(),
-        '/metronome':(context) => const EditMetronome(),
+        '/metronome': (context) => const EditMetronome(),
       },
     );
   }
@@ -32,6 +32,7 @@ class MyApp extends StatelessWidget {
 class RootPage extends StatefulWidget {
   const RootPage({super.key, required this.storage});
 
+  // TODO - implement saving and loading
   final UserStorage storage;
 
   @override
@@ -219,7 +220,7 @@ class _RootPageState extends State<RootPage> {
         }
         beat = 1;
         // if metronome is not infinite
-        if (metronomes[activeMetronome].measures != -1) {
+        if (metronomes[activeMetronome].measures != 0) {
           // if metronome is not finished
           if (metronomes[activeMetronome].measures != currentMeasure) {
             currentMeasure += 1;
@@ -286,8 +287,16 @@ class _RootPageState extends State<RootPage> {
 
     return Scaffold(
       appBar: AppBar(
-        title: FittedBox(
-            child: Text((userData.metronomeData[userData.currentIndex].name))),
+        // TODO make dropdown where you can switch metronome
+        title: TextButton(
+          style: TextButton.styleFrom(
+            foregroundColor: Colors.black,
+          ),
+          onPressed: () {},
+          child: FittedBox(
+              child:
+                  Text((userData.metronomeData[userData.currentIndex].name))),
+        ),
         actions: [
           IconButton(
             onPressed: () {
