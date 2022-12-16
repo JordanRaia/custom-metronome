@@ -267,7 +267,8 @@ class EditTempoState extends State<EditTempo> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Untitled'),
+        title: FittedBox(
+            child: Text((userData.metronomeData[userData.currentIndex].name))),
         actions: [
           IconButton(
             onPressed: () {

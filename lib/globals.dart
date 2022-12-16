@@ -3,8 +3,8 @@ import 'package:flutter/material.dart';
 import 'dart:io';
 import 'package:path_provider/path_provider.dart';
 
-// testing metronomes
-List<Metronome> metronomes = [
+// example metronome
+List<Metronome> exampleMetronome = [
   Metronome(
     tempo: 138,
     beatsPerMeasure: 4,
@@ -169,8 +169,8 @@ List<Metronome> metronomes = [
   ),
 ];
 
-// testing section
-List<Section> sections = [
+// example section
+List<Section> exampleSection = [
   Section(
     name: 'Intro',
     measures: 6,
@@ -249,6 +249,38 @@ List<Section> sections = [
   ),
 ];
 
+UserData userData = UserData(
+  currentIndex: 0,
+  metronomeData: [
+    CustomMetronome(name: 'Example Metronome', metronomes: exampleMetronome),
+  ],
+  sectionData: [
+    CustomSection(sections: exampleSection),
+  ],
+);
+
+List<Metronome> metronomes =
+    userData.metronomeData[userData.currentIndex].metronomes;
+
+List<Section> sections = userData.sectionData[userData.currentIndex].sections;
+
+class UserData {
+  // all the user's saved metronomes
+  List<CustomMetronome> metronomeData;
+
+  // all the user's saved sections
+  List<CustomSection> sectionData;
+
+  // the user's current metronome and section
+  int currentIndex;
+
+  UserData({
+    this.currentIndex = 0,
+    this.metronomeData = const [],
+    this.sectionData = const [],
+  });
+}
+
 // metronome object
 class Metronome {
   // beats per minute
@@ -268,6 +300,20 @@ class Metronome {
     this.beatsPerMeasure = 4,
     this.timeSignature = 4,
     this.measures = -1,
+  });
+}
+
+// custom metronome object
+class CustomMetronome {
+  // name of the custom metronome
+  String name;
+
+  // list of the individual metronomes
+  List<Metronome> metronomes;
+
+  CustomMetronome({
+    this.name = 'Untitled Metronome',
+    this.metronomes = const [],
   });
 }
 
@@ -376,6 +422,16 @@ class Section {
   });
 }
 
+// custom Section object
+class CustomSection {
+  // list of the individual sections
+  List<Section> sections;
+
+  CustomSection({
+    this.sections = const [],
+  });
+}
+
 String defaultName = 'Untitled Section';
 
 // get the measure range for a section
@@ -461,14 +517,40 @@ int getSectionMeasure(List<Section> sections, String section) {
   return -1;
 }
 
-// get local path on system
-Future<String> get _localPath async {
-  final directory = await getApplicationDocumentsDirectory();
+class UserStorage {
+  // get the user data
+  Future<String> getUserData() async {
+    try {
+      final file = await _localFile;
 
-  return directory.path;
-}
+      // Read the file
+      String contents = await file.readAsString();
 
-Future<File> get _localFile async {
-  final path = await _localPath;
-  return File('$path/data.json');
+      return contents;
+    } catch (e) {
+      // If encountering an error, return 0
+      return '';
+    }
+  }
+
+  // set the user data
+  Future<File> setUserData(String data) async {
+    final file = await _localFile;
+
+    // Write the file
+    return file.writeAsString(data);
+  }
+
+  // get local path on system
+  Future<String> get _localPath async {
+    final directory = await getApplicationDocumentsDirectory();
+
+    return directory.path;
+  }
+
+  // reference to the file location
+  Future<File> get _localFile async {
+    final path = await _localPath;
+    return File('$path/data.json');
+  }
 }

@@ -1,16 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:custom_metronome/globals.dart';
 
-class EditSection extends StatefulWidget {
-  const EditSection({super.key});
+class EditMetronome extends StatefulWidget {
+  const EditMetronome({super.key});
 
   @override
-  EditSectionState createState() => EditSectionState();
+  EditMetronomeState createState() => EditMetronomeState();
 }
 
-class EditSectionState extends State<EditSection> {
+class EditMetronomeState extends State<EditMetronome> {
   // Edit a Section
-  void showEditSection(BuildContext context, int index, Section section) {
+  void showEditMetronome(BuildContext context, int index, Section section) {
     final nameController = TextEditingController(text: section.name);
     final measuresController =
         TextEditingController(text: section.measures.toString());
@@ -123,8 +123,7 @@ class EditSectionState extends State<EditSection> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: FittedBox(
-            child: Text((userData.metronomeData[userData.currentIndex].name))),
+        title: const Text('Metronomes'),
         leading: IconButton(
           onPressed: () {
             Navigator.of(context).pop();
@@ -153,7 +152,7 @@ class EditSectionState extends State<EditSection> {
                 children: <Widget>[
                   IconButton(
                     onPressed: () {
-                      showEditSection(context, index, sections[index]);
+                      showEditMetronome(context, index, sections[index]);
                     },
                     icon: const Icon(Icons.edit),
                   ),

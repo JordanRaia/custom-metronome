@@ -5,6 +5,7 @@ import 'package:flutter/services.dart';
 import 'package:soundpool/soundpool.dart';
 import 'package:custom_metronome/tempo.dart';
 import 'package:custom_metronome/globals.dart';
+import 'package:custom_metronome/metronomes.dart';
 
 void main() {
   runApp(const MyApp());
@@ -18,25 +19,26 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       theme: ThemeData(primarySwatch: Colors.grey),
-      home: const RootPage(),
+      home: RootPage(storage: UserStorage()),
       routes: {
         '/tempo': (context) => const EditTempo(),
         '/section': (context) => const EditSection(),
+        '/metronome':(context) => const EditMetronome(),
       },
     );
   }
 }
 
 class RootPage extends StatefulWidget {
-  const RootPage({super.key});
+  const RootPage({super.key, required this.storage});
+
+  final UserStorage storage;
 
   @override
   State<RootPage> createState() => _RootPageState();
 }
 
 class _RootPageState extends State<RootPage> {
-  //sharedPrefs
-
   // colors
   var playColor = Colors.black;
   // metronome bool
@@ -284,16 +286,19 @@ class _RootPageState extends State<RootPage> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Untitled'),
+        title: FittedBox(
+            child: Text((userData.metronomeData[userData.currentIndex].name))),
         actions: [
           IconButton(
-            onPressed: () {},
-            icon: const Icon(Icons.save_alt),
+            onPressed: () {
+              Navigator.pushNamed(context, '/metronome');
+            },
+            icon: const Icon(Icons.save),
             color: Colors.white,
           ),
           IconButton(
             onPressed: () {},
-            icon: const Icon(Icons.save),
+            icon: const Icon(Icons.add_box),
             color: Colors.white,
           ),
           IconButton(
