@@ -45,13 +45,15 @@ class _RootPageState extends State<RootPage> {
   // lists
   List<BoxShadow> boxShadows = [];
   // values
-  int activeMetronome = 0; // index of active metronome
+  int activeMetronome =
+      getMetronomeIndex(metronomes, userMeasure); // index of active metronome
 
   int tempoPercent =
       100; // The tempo as a percent (e.g. 100 = normal tempo, 50 = half tempo)
   int beat = 1; // current beat
-  int measure = 1; // total measures played
-  int currentMeasure = 1; // current measure of metronome object
+  int measure = userMeasure; // total measures played
+  int currentMeasure = getCurrentMeasure(
+      metronomes, userMeasure); // current measure of metronome object
 
   //timer
   Timer timer = Timer.periodic(
@@ -63,6 +65,119 @@ class _RootPageState extends State<RootPage> {
   // soundplayer object ids
   int high = 0;
   int low = 0;
+
+  void showEditSectionStart(
+      BuildContext context, int index, List<Section> sections) {
+    final sectionController = TextEditingController(text: sections[index].name);
+
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: const Text('Edit Section Start'),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: <Widget>[
+              DropdownButtonFormField(
+                items: getSectionNames(sections).map((section) {
+                  return DropdownMenuItem(
+                    value: section,
+                    child: Text(section),
+                  );
+                }).toList(),
+                onChanged: (value) {
+                  sectionController.text = value!;
+                },
+                decoration: const InputDecoration(
+                  labelText: 'Section',
+                  hintText: 'Select a section',
+                ),
+                value: sectionController.text,
+              ),
+            ],
+          ),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.pop(context);
+              },
+              child: const Text('Cancel'),
+            ),
+            TextButton(
+              onPressed: () {
+                setState(() {
+                  userMeasure =
+                      getSectionMeasure(sections, sectionController.text);
+                  measure = userMeasure;
+                  currentMeasure = getCurrentMeasure(metronomes, userMeasure);
+                  activeMetronome = getMetronomeIndex(metronomes, userMeasure);
+                });
+                Navigator.pop(context);
+              },
+              child: const Text('Save'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  void showEditMeasureStart(BuildContext context, int startMeasure) {
+    final measureController =
+        TextEditingController(text: startMeasure.toString());
+
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: const Text('Edit Section Start'),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: <Widget>[
+              DropdownButtonFormField(
+                items: getStringMeasures(metronomes).map(
+                  (metronome) {
+                    return DropdownMenuItem(
+                      value: metronome,
+                      child: Text(metronome),
+                    );
+                  },
+                ).toList(),
+                onChanged: (value) {
+                  measureController.text = value!;
+                },
+                decoration: const InputDecoration(
+                  labelText: 'Section',
+                  hintText: 'Select a section',
+                ),
+                value: measureController.text,
+              ),
+            ],
+          ),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.pop(context);
+              },
+              child: const Text('Cancel'),
+            ),
+            TextButton(
+              onPressed: () {
+                setState(() {
+                  userMeasure = int.parse(measureController.text);
+                  measure = userMeasure;
+                  currentMeasure = getCurrentMeasure(metronomes, userMeasure);
+                  activeMetronome = getMetronomeIndex(metronomes, userMeasure);
+                });
+                Navigator.pop(context);
+              },
+              child: const Text('Save'),
+            ),
+          ],
+        );
+      },
+    );
+  }
 
   // Load the first sound file into the cache
   void loadSounds() async {
@@ -130,10 +245,10 @@ class _RootPageState extends State<RootPage> {
               // stop the timer
               timer.cancel();
               // reset the metronome
-              currentMeasure = 1;
-              measure = 1;
+              currentMeasure = getCurrentMeasure(metronomes, userMeasure);
+              measure = userMeasure;
               beat = 1;
-              activeMetronome = 0;
+              activeMetronome = getMetronomeIndex(metronomes, userMeasure);
             }
           }
         } else {
@@ -316,12 +431,13 @@ class _RootPageState extends State<RootPage> {
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                   children: [
-                    // TODO make a Text Button where you can choose what section
-                    // to start on
                     Column(
                       children: [
                         TextButton(
-                          onPressed: () {},
+                          onPressed: () {
+                            showEditSectionStart(context,
+                                getSectionIndex(sections, measure), sections);
+                          },
                           child: const Text('Section▼'),
                         ),
                         Text(
@@ -334,12 +450,12 @@ class _RootPageState extends State<RootPage> {
                       thickness: 1,
                       color: Colors.black,
                     ),
-                    // TODO make a Text Button where you can choose what measure
-                    // to start on
                     Column(
                       children: [
                         TextButton(
-                          onPressed: () {},
+                          onPressed: () {
+                            showEditMeasureStart(context, measure);
+                          },
                           child: const Text('Measure▼'),
                         ),
                         Text(
@@ -456,9 +572,11 @@ class _RootPageState extends State<RootPage> {
                               timer.cancel();
                               isPlaying = false;
                               beat = 1;
-                              measure = 1;
-                              currentMeasure = 1;
-                              activeMetronome = 0;
+                              measure = userMeasure;
+                              currentMeasure =
+                                  getCurrentMeasure(metronomes, userMeasure);
+                              activeMetronome =
+                                  getMetronomeIndex(metronomes, userMeasure);
                             } else {
                               // start
                               soundPlayer.play(high);

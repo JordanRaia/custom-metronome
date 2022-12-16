@@ -301,10 +301,66 @@ String getMeasureRangeMetronome(List<Metronome> metronomes, int index) {
   return '';
 }
 
+int getTotalMeasures(List<Metronome> metronomes) {
+  int totalMeasures = 0;
+  for (int i = 0; i < metronomes.length; i++) {
+    totalMeasures += metronomes[i].measures;
+  }
+
+  return totalMeasures;
+}
+
+List<String> getStringMeasures(List<Metronome> metronomes) {
+  int totalMeasures = getTotalMeasures(metronomes);
+  List<String> stringMeasures = [];
+  for (int i = 0; i < totalMeasures; i++) {
+    stringMeasures.add('${i + 1}');
+  }
+
+  return stringMeasures;
+}
+
+int getCurrentMeasure(List<Metronome> metronomes, int measure) {
+  int totalMeasures = 0;
+  for (int i = 0; i < metronomes.length; i++) {
+    totalMeasures += metronomes[i].measures;
+    if (measure <= totalMeasures) {
+      // subtract the total measures from the current measure
+      totalMeasures = totalMeasures - metronomes[i].measures;
+      // get the current measure
+      int currentMeasure = measure - totalMeasures;
+      // return
+      return currentMeasure;
+    }
+  }
+
+  // error
+  debugPrint('Error: getCurrentMeasure(): measure out of range');
+  return -1;
+}
+
+int getMetronomeIndex(List<Metronome> metronomes, int measure) {
+  int totalMeasures = 0;
+  for (int i = 0; i < metronomes.length; i++) {
+    totalMeasures += metronomes[i].measures;
+    if (measure <= totalMeasures) {
+      return i;
+    }
+  }
+
+  // error
+  debugPrint('Error: getMetronomeIndex(): measure out of range');
+  return -1;
+}
+
+// default metronome
 int defaultTempo = 120;
 int defaultBeatsPerMeasure = 4;
 int defaultTimeSignature = 4;
 int defaultMeasures = -1;
+
+// user start time
+int userMeasure = 1;
 
 // section object
 class Section {
@@ -365,6 +421,44 @@ String getSection(List<Section> sections, int measure) {
   // error
   debugPrint('Error: getSection(): measure out of range');
   return '';
+}
+
+int getSectionIndex(List<Section> sections, int measure) {
+  int totalMeasures = 0;
+  for (int i = 0; i < sections.length; i++) {
+    totalMeasures += sections[i].measures;
+    if (measure <= totalMeasures) {
+      return i;
+    }
+  }
+
+  // error
+  debugPrint('Error: getSectionIndex(): measure out of range');
+  return -1;
+}
+
+List<String> getSectionNames(List<Section> sections) {
+  List<String> names = [];
+  for (int i = 0; i < sections.length; i++) {
+    names.add(sections[i].name);
+  }
+
+  return names;
+}
+
+int getSectionMeasure(List<Section> sections, String section) {
+  int totalMeasures = 0;
+  for (int i = 0; i < sections.length; i++) {
+    if (sections[i].name == section) {
+      return totalMeasures + 1;
+    } else {
+      totalMeasures += sections[i].measures;
+    }
+  }
+
+  // error
+  debugPrint('Error: getSectionMeasure(): section not found');
+  return -1;
 }
 
 // get local path on system
