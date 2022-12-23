@@ -414,7 +414,7 @@ int getMetronomeIndex(List<Metronome> metronomes, int measure) {
 
   // error
   debugPrint('Error: getMetronomeIndex(): measure out of range $measure');
-  return -1;
+  return 0;
 }
 
 // default metronome
@@ -495,9 +495,7 @@ String getSection(List<Section> sections, int measure) {
     }
   }
 
-  // error
-  debugPrint('Error: getSection(): measure out of range $measure');
-  return '';
+  return 'Undefined';
 }
 
 int getSectionIndex(List<Section> sections, int measure) {
