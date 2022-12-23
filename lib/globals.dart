@@ -281,6 +281,23 @@ class UserData {
   });
 }
 
+List<String> getMetronomeNames() {
+  List<String> metronomeNames = [];
+  for (int i = 0; i < userData.metronomeData.length; i++) {
+    metronomeNames.add(userData.metronomeData[i].name);
+  }
+  return metronomeNames;
+}
+
+int getMetronomeIndexByName(String name) {
+  for (int i = 0; i < userData.metronomeData.length; i++) {
+    if (userData.metronomeData[i].name == name) {
+      return i;
+    }
+  }
+  return 0;
+}
+
 // metronome object
 class Metronome {
   // beats per minute
@@ -299,7 +316,7 @@ class Metronome {
     this.tempo = 120,
     this.beatsPerMeasure = 4,
     this.timeSignature = 4,
-    this.measures = 0,
+    this.measures = 30,
   });
 }
 
@@ -368,6 +385,7 @@ List<String> getStringMeasures(List<Metronome> metronomes) {
 
 int getCurrentMeasure(List<Metronome> metronomes, int measure) {
   int totalMeasures = 0;
+  debugPrint('$metronomes');
   for (int i = 0; i < metronomes.length; i++) {
     totalMeasures += metronomes[i].measures;
     if (measure <= totalMeasures) {
@@ -381,7 +399,7 @@ int getCurrentMeasure(List<Metronome> metronomes, int measure) {
   }
 
   // error
-  debugPrint('Error: getCurrentMeasure(): measure out of range');
+  debugPrint('Error: getCurrentMeasure(): measure out of range $measure');
   return -1;
 }
 
@@ -395,18 +413,18 @@ int getMetronomeIndex(List<Metronome> metronomes, int measure) {
   }
 
   // error
-  debugPrint('Error: getMetronomeIndex(): measure out of range');
+  debugPrint('Error: getMetronomeIndex(): measure out of range $measure');
   return -1;
 }
 
 // default metronome
-int defaultTempo = 120;
-int defaultBeatsPerMeasure = 4;
-int defaultTimeSignature = 4;
-int defaultMeasures = 0;
+const int defaultTempo = 120;
+const int defaultBeatsPerMeasure = 4;
+const int defaultTimeSignature = 4;
+const int defaultMeasures = 30;
 
 // default custom metronome
-String defaultMetronomeName = 'Untitled Metronome';
+const String defaultMetronomeName = 'Untitled Metronome';
 
 // user start time
 int userMeasure = 1;
@@ -421,7 +439,7 @@ class Section {
 
   Section({
     this.name = 'Untitled Section',
-    this.measures = 0,
+    this.measures = 30,
   });
 }
 
@@ -478,7 +496,7 @@ String getSection(List<Section> sections, int measure) {
   }
 
   // error
-  debugPrint('Error: getSection(): measure out of range');
+  debugPrint('Error: getSection(): measure out of range $measure');
   return '';
 }
 

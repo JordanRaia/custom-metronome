@@ -182,6 +182,78 @@ class _RootPageState extends State<RootPage> {
     );
   }
 
+  void switchMetronome(int index) {
+    setState(() {
+      // userdata
+      userData.currentIndex = index;
+      // globals
+      metronomes = userData.metronomeData[index].metronomes;
+      sections = userData.sectionData[index].sections;
+      // local values
+      userMeasure = 1;
+      measure = userMeasure;
+      currentMeasure = 1;
+      activeMetronome = 0;
+    });
+  }
+
+  void showSwitchMetronome(BuildContext context) {
+    final metronomeController = TextEditingController(
+        text: userData.metronomeData[userData.currentIndex].name);
+    int selectedIndex = userData.currentIndex;
+
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: const Text('Switch Metronome'),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: <Widget>[
+              DropdownButtonFormField(
+                items: getMetronomeNames().map(
+                  (metronome) {
+                    return DropdownMenuItem(
+                      value: metronome,
+                      child: Text(metronome),
+                    );
+                  },
+                ).toList(),
+                onChanged: (value) {
+                  metronomeController.text = value!;
+                  selectedIndex = getMetronomeIndexByName(value);
+                },
+                decoration: const InputDecoration(
+                  labelText: 'Metronome',
+                  hintText: 'Select a metronome',
+                ),
+                value: metronomeController.text,
+              ),
+            ],
+          ),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.pop(context);
+              },
+              child: const Text('Cancel'),
+            ),
+            TextButton(
+              onPressed: () {
+                setState(() {
+                  switchMetronome(selectedIndex);
+                });
+
+                Navigator.pop(context);
+              },
+              child: const Text('Switch'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
   // Load the first sound file into the cache
   void loadSounds() async {
     high = await soundPlayer.load('assets/Synth_Bell_A_hi.wav');
@@ -287,12 +359,13 @@ class _RootPageState extends State<RootPage> {
 
     return Scaffold(
       appBar: AppBar(
-        // TODO make dropdown where you can switch metronome
         title: TextButton(
           style: TextButton.styleFrom(
             foregroundColor: Colors.black,
           ),
-          onPressed: () {},
+          onPressed: () {
+            showSwitchMetronome(context);
+          },
           child: FittedBox(
               child:
                   Text((userData.metronomeData[userData.currentIndex].name))),
@@ -348,28 +421,83 @@ class _RootPageState extends State<RootPage> {
               width: double.infinity,
               height: newheight * 0.25,
               child: Center(
-                child: Row(
+                child: Column(
                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                   children: [
-                    for (var i = 0;
-                        i < metronomes[activeMetronome].beatsPerMeasure;
-                        i++)
-                      Container(
-                        padding: const EdgeInsets.all(45.0),
-                        height: 45,
-                        width: 45,
-                        decoration: BoxDecoration(
-                          color: Colors.cyan,
-                          borderRadius: BorderRadius.circular(15.0),
-                          boxShadow: isPlaying
-                              ? boxShadows
-                                  .map((shadow) => i == (beat - 1)
-                                      ? shadow
-                                      : const BoxShadow())
-                                  .toList()
-                              : [],
-                        ),
+                    //metronome less than 6 beats
+                    if (metronomes[activeMetronome].beatsPerMeasure < 6)
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                        children: [
+                          for (var i = 0;
+                              i < metronomes[activeMetronome].beatsPerMeasure;
+                              i++)
+                            Container(
+                              padding: const EdgeInsets.all(45.0),
+                              height: 45,
+                              width: 45,
+                              decoration: BoxDecoration(
+                                color: Colors.cyan,
+                                borderRadius: BorderRadius.circular(15.0),
+                                boxShadow: isPlaying
+                                    ? boxShadows
+                                        .map((shadow) => i == (beat - 1)
+                                            ? shadow
+                                            : const BoxShadow())
+                                        .toList()
+                                    : [],
+                              ),
+                            ),
+                        ],
+                      )
+                    else
+                      // metronome greater than 6 beats
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                        children: [
+                          for (var i = 0; i < 6; i++)
+                            Container(
+                              padding: const EdgeInsets.all(45.0),
+                              height: 45,
+                              width: 45,
+                              decoration: BoxDecoration(
+                                color: Colors.cyan,
+                                borderRadius: BorderRadius.circular(15.0),
+                                boxShadow: isPlaying
+                                    ? boxShadows
+                                        .map((shadow) => i == (beat - 1)
+                                            ? shadow
+                                            : const BoxShadow())
+                                        .toList()
+                                    : [],
+                              ),
+                            ),
+                        ],
                       ),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                      children: [
+                        for (var i = 6;
+                            i < metronomes[activeMetronome].beatsPerMeasure;
+                            i++)
+                          Container(
+                            padding: const EdgeInsets.all(45.0),
+                            height: 45,
+                            width: 45,
+                            decoration: BoxDecoration(
+                              color: Colors.cyan,
+                              borderRadius: BorderRadius.circular(15.0),
+                              boxShadow: isPlaying
+                                  ? boxShadows
+                                      .map((shadow) => i == (beat - 1)
+                                          ? shadow
+                                          : const BoxShadow())
+                                      .toList()
+                                  : [],
+                            ),
+                          ),
+                      ],
+                    )
                   ],
                 ),
               ),
