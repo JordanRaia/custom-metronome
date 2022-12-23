@@ -313,10 +313,10 @@ class Metronome {
   int measures;
 
   Metronome({
-    this.tempo = 120,
-    this.beatsPerMeasure = 4,
-    this.timeSignature = 4,
-    this.measures = 30,
+    this.tempo = defaultTempo,
+    this.beatsPerMeasure = defaultBeatsPerMeasure,
+    this.timeSignature = defaultTimeSignature,
+    this.measures = defaultMeasures,
   });
 }
 
@@ -421,7 +421,7 @@ int getMetronomeIndex(List<Metronome> metronomes, int measure) {
 const int defaultTempo = 120;
 const int defaultBeatsPerMeasure = 4;
 const int defaultTimeSignature = 4;
-const int defaultMeasures = 30;
+const int defaultMeasures = 0;
 
 // default custom metronome
 const String defaultMetronomeName = 'Untitled Metronome';
@@ -438,8 +438,8 @@ class Section {
   int measures;
 
   Section({
-    this.name = 'Untitled Section',
-    this.measures = 30,
+    this.name = defaultName,
+    this.measures = defaultMeasures,
   });
 }
 
@@ -453,7 +453,7 @@ class CustomSection {
   });
 }
 
-String defaultName = 'Untitled Section';
+const String defaultName = 'Untitled Section';
 
 // get the measure range for a section
 String getMeasureRangeSection(List<Section> sections, int index) {
@@ -490,7 +490,7 @@ String getSection(List<Section> sections, int measure) {
   int totalMeasures = 0;
   for (int i = 0; i < sections.length; i++) {
     totalMeasures += sections[i].measures;
-    if (measure <= totalMeasures) {
+    if (measure <= totalMeasures || sections[i].measures == 0) {
       return sections[i].name;
     }
   }
