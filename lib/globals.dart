@@ -643,3 +643,15 @@ class SharedPref {
 
 //saving and loading
 SharedPref sharedPref = SharedPref();
+
+// get a new metronome name and add (1) if it already exists
+String getMetronomeName(String name) {
+  // check if name already exists
+  for (int i = 0; i < userData.metronomeData.length; i++) {
+    if (userData.metronomeData[i].name == name) {
+      return getMetronomeName('$name(1)');
+    }
+  }
+
+  return name;
+}

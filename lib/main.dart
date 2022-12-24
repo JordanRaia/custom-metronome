@@ -437,9 +437,33 @@ class _RootPageState extends State<RootPage> {
             icon: const Icon(Icons.save),
             color: Colors.white,
           ),
-          // TODO add a new metronome then switch to it
           IconButton(
-            onPressed: () {},
+            onPressed: () {
+              setState(
+                () {
+                  String name = getMetronomeName(defaultMetronomeName);
+
+                  userData.metronomeData.add(
+                    CustomMetronome(
+                      name: name,
+                      metronomes: [
+                        Metronome(
+                          tempo: defaultTempo,
+                          beatsPerMeasure: defaultBeatsPerMeasure,
+                          timeSignature: defaultTimeSignature,
+                          measures: defaultMeasures,
+                        ),
+                      ],
+                    ),
+                  );
+
+                  userData.sectionData.add(CustomSection(sections: [
+                    Section(),
+                  ]));
+                },
+              );
+              switchMetronome(userData.metronomeData.length - 1);
+            },
             icon: const Icon(Icons.add_box),
             color: Colors.white,
           ),
