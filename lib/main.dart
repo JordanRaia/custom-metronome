@@ -480,8 +480,11 @@ class _RootPageState extends State<RootPage> {
 
   double getHeight(double screenHeight, String widget) {
     if (widget == 'display') {
+      if (screenHeight < 580) {
+        return screenHeight * 0.19;
+      }
       if (screenHeight < 610) {
-        return screenHeight * 0.2;
+        return screenHeight * 0.20;
       }
       if (screenHeight < 800) {
         return screenHeight * 0.25;
@@ -501,7 +504,18 @@ class _RootPageState extends State<RootPage> {
         return screenHeight * 0.15;
       }
     }
+    if (widget == 'sections') {
+      if (screenHeight < 580) {
+        return screenHeight * 0.13;
+      }
+      if (screenHeight > 580) {
+        return screenHeight * 0.15;
+      }
+    }
     if (widget == 'play') {
+      if (screenHeight < 580) {
+        return screenHeight * (0.58) - 180;
+      }
       if (screenHeight < 610) {
         return screenHeight * (0.55) - 180;
       }
@@ -764,7 +778,7 @@ class _RootPageState extends State<RootPage> {
                 ),
                 Container(
                   color: Colors.black12,
-                  height: newheight * 0.15,
+                  height: getHeight(newheight, 'sections'),
                   child: Container(
                     margin: const EdgeInsets.only(
                         left: 5.0, right: 5.0, bottom: 5.0),
