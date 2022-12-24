@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:custom_metronome/globals.dart';
+import 'package:google_mobile_ads/google_mobile_ads.dart';
+import 'package:custom_metronome/ad_helper.dart';
 
 class SettingsPage extends StatefulWidget {
   const SettingsPage({super.key});
@@ -152,6 +154,36 @@ class SettingsPageState extends State<SettingsPage> {
         });
   }
 
+  BannerAd? _bannerAd;
+
+  @override
+  void initState() {
+    super.initState();
+
+    BannerAd(
+      adUnitId: AdHelper.bannerAdUnitId,
+      request: const AdRequest(),
+      size: AdSize.fullBanner,
+      listener: BannerAdListener(
+        onAdLoaded: (ad) {
+          setState(() {
+            _bannerAd = ad as BannerAd;
+          });
+        },
+        onAdFailedToLoad: (ad, err) {
+          debugPrint('Failed to load a banner ad: ${err.message}');
+          ad.dispose();
+        },
+      ),
+    ).load();
+  }
+
+  @override
+  void dispose() {
+    _bannerAd?.dispose();
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -164,6 +196,13 @@ class SettingsPageState extends State<SettingsPage> {
             icon: const Icon(Icons.arrow_back),
           ),
         ),
+        bottomNavigationBar: _bannerAd == null
+            ? null
+            : SizedBox(
+                height: _bannerAd!.size.height.toDouble(),
+                width: double.infinity,
+                child: AdWidget(ad: _bannerAd!),
+              ),
         body: ListView(children: [
           const ListTile(
             title: Text('Version'),

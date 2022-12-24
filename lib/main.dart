@@ -58,9 +58,9 @@ class _RootPageState extends State<RootPage> {
   }
 
   // ads
-  Future<InitializationStatus> _initGoogleMobileAds() {
-    return MobileAds.instance.initialize();
-  }
+  // Future<InitializationStatus> _initGoogleMobileAds() {
+  //   return MobileAds.instance.initialize();
+  // }
 
   BannerAd? _bannerAd;
 

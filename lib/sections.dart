@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:custom_metronome/globals.dart';
+import 'package:google_mobile_ads/google_mobile_ads.dart';
+import 'package:custom_metronome/ad_helper.dart';
 
 class EditSection extends StatefulWidget {
   const EditSection({super.key});
@@ -150,6 +152,36 @@ class EditSectionState extends State<EditSection> {
     return name;
   }
 
+  BannerAd? _bannerAd;
+
+  @override
+  void initState() {
+    super.initState();
+
+    BannerAd(
+      adUnitId: AdHelper.bannerAdUnitId,
+      request: const AdRequest(),
+      size: AdSize.fullBanner,
+      listener: BannerAdListener(
+        onAdLoaded: (ad) {
+          setState(() {
+            _bannerAd = ad as BannerAd;
+          });
+        },
+        onAdFailedToLoad: (ad, err) {
+          debugPrint('Failed to load a banner ad: ${err.message}');
+          ad.dispose();
+        },
+      ),
+    ).load();
+  }
+
+  @override
+  void dispose() {
+    _bannerAd?.dispose();
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -171,6 +203,13 @@ class EditSectionState extends State<EditSection> {
           ),
         ],
       ),
+      bottomNavigationBar: _bannerAd == null
+          ? null
+          : SizedBox(
+              height: _bannerAd!.size.height.toDouble(),
+              width: double.infinity,
+              child: AdWidget(ad: _bannerAd!),
+            ),
       body: ListView.builder(
         itemCount: sections.length,
         itemBuilder: (context, index) {
