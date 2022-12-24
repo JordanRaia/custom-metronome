@@ -71,6 +71,7 @@ class _RootPageState extends State<RootPage> {
       100; // The tempo as a percent (e.g. 100 = normal tempo, 50 = half tempo)
   int beat = 1; // current beat
   int measure = userMeasure; // total measures played
+  int leadInMeasure = 1; // lead in measures played
   int currentMeasure = getCurrentMeasure(
       metronomes, userMeasure); // current measure of metronome object
 
@@ -321,6 +322,38 @@ class _RootPageState extends State<RootPage> {
     return time;
   }
 
+  void leadInParms() {
+    setState(() {
+      boxShadows[beat - 1] = const BoxShadow(
+        color: Colors.cyanAccent,
+        blurRadius: 12.0,
+        spreadRadius: 8.0,
+      );
+    });
+    if (beat != userData.leadInMetronome.beatsPerMeasure) {
+      // not first beat
+      soundPlayer.play(low);
+      beat += 1;
+    } else {
+      // first beat
+      soundPlayer.play(high);
+      beat = 1;
+      // if not the last measure
+      if (userData.leadInMetronome.measures != leadInMeasure) {
+        leadInMeasure += 1;
+      } else {
+        // last measure, start up the metronome
+        debugPrint('here');
+        timer.cancel();
+        timer = Timer.periodic(
+            Duration(
+                milliseconds: (getTime(metronomes[activeMetronome].tempo,
+                    tempoPercent, metronomes[activeMetronome].timeSignature))),
+            (timer) => timerParms());
+      }
+    }
+  }
+
   void timerParms() {
     {
       setState(() {
@@ -377,6 +410,7 @@ class _RootPageState extends State<RootPage> {
               currentMeasure = getCurrentMeasure(metronomes, userMeasure);
               measure = userMeasure;
               beat = 1;
+              leadInMeasure = 1;
               activeMetronome = getMetronomeIndex(metronomes, userMeasure);
             }
           }
@@ -810,6 +844,7 @@ class _RootPageState extends State<RootPage> {
                                   timer.cancel();
                                   isPlaying = false;
                                   beat = 1;
+                                  leadInMeasure = 1;
                                   measure = userMeasure;
                                   currentMeasure = getCurrentMeasure(
                                       metronomes, userMeasure);
@@ -819,14 +854,26 @@ class _RootPageState extends State<RootPage> {
                                   // start
                                   soundPlayer.play(high);
                                   isPlaying = true;
-                                  timer = Timer.periodic(
-                                      Duration(
-                                          milliseconds: (getTime(
-                                              metronomes[activeMetronome].tempo,
-                                              tempoPercent,
-                                              metronomes[activeMetronome]
-                                                  .timeSignature))),
-                                      (timer) => timerParms());
+                                  if (userData.leadIn) {
+                                    timer = Timer.periodic(
+                                        Duration(
+                                            milliseconds: (getTime(
+                                                userData.leadInMetronome.tempo,
+                                                tempoPercent,
+                                                userData.leadInMetronome
+                                                    .timeSignature))),
+                                        (timer) => leadInParms());
+                                  } else {
+                                    timer = Timer.periodic(
+                                        Duration(
+                                            milliseconds: (getTime(
+                                                metronomes[activeMetronome]
+                                                    .tempo,
+                                                tempoPercent,
+                                                metronomes[activeMetronome]
+                                                    .timeSignature))),
+                                        (timer) => timerParms());
+                                  }
                                 }
                                 playColor = Colors.cyan;
                               });
