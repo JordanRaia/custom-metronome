@@ -47,6 +47,23 @@ class EditSectionState extends State<EditSection> {
               ),
               TextButton(
                 onPressed: () {
+                  // check if name already exists
+                  for (int i = 0; i < sections.length; i++) {
+                    if (sections[i].name == nameController.text) {
+                      // check if it's the same section
+                      if (sections[i] == section) {
+                        break;
+                      } else {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: Text('A section with the '
+                                'name ${nameController.text} already exists.'),
+                          ),
+                        );
+                        return;
+                      }
+                    }
+                  }
                   setState(() {
                     sections[index].name = nameController.text;
                     sections[index].measures =
@@ -101,9 +118,9 @@ class EditSectionState extends State<EditSection> {
                   setState(() {
                     String name = '';
                     if (nameController.text == '') {
-                      name = defaultName;
+                      name = getSectionName(defaultName);
                     } else {
-                      name = nameController.text;
+                      name = getSectionName(nameController.text);
                     }
                     int measures = int.tryParse(measuresController.text) ??
                         defaultMeasures;
@@ -117,6 +134,16 @@ class EditSectionState extends State<EditSection> {
             ],
           );
         });
+  }
+
+  String getSectionName(String name) {
+    // check if name already exists
+    for (int i = 0; i < sections.length; i++) {
+      if (sections[i].name == name) {
+        return getSectionName('$name(1)');
+      }
+    }
+    return name;
   }
 
   @override
