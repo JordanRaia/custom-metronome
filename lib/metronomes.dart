@@ -38,6 +38,23 @@ class EditMetronomeState extends State<EditMetronome> {
               ),
               TextButton(
                 onPressed: () {
+                  // check if name already exists
+                  for (int i = 0; i < userData.metronomeData.length; i++) {
+                    if (userData.metronomeData[i].name == nameController.text) {
+                      // check if it's the same metronome
+                      if (userData.metronomeData[i] == metronome) {
+                        break;
+                      } else {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: Text('A metronome with the '
+                                'name ${nameController.text} already exists.'),
+                          ),
+                        );
+                        return;
+                      }
+                    }
+                  }
                   setState(() {
                     userData.metronomeData[index].name = nameController.text;
                   });
@@ -81,9 +98,9 @@ class EditMetronomeState extends State<EditMetronome> {
                   () {
                     String name = '';
                     if (nameController.text == '') {
-                      name = defaultMetronomeName;
+                      name = getMetronomeName(defaultMetronomeName);
                     } else {
-                      name = nameController.text;
+                      name = getMetronomeName(nameController.text);
                     }
 
                     userData.metronomeData.add(
@@ -113,6 +130,17 @@ class EditMetronomeState extends State<EditMetronome> {
         );
       },
     );
+  }
+
+  String getMetronomeName(String name) {
+    // check if name already exists
+    for (int i = 0; i < userData.metronomeData.length; i++) {
+      if (userData.metronomeData[i].name == name) {
+        return getMetronomeName('$name(1)');
+      }
+    }
+
+    return name;
   }
 
   @override
