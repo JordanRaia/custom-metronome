@@ -45,5 +45,5 @@ app.*.map.json
 
 # ad mob id
 /lib/ad_helper.dart
-
 /android/app/src/main/AndroidManifest.xml
+/ios/Runner/Info.plist
