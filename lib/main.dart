@@ -43,7 +43,6 @@ class _RootPageState extends State<RootPage> {
   void loadSharedPrefs() async {
     try {
       UserData user = UserData.fromJson(await sharedPref.read("user"));
-      debugPrint(user.toString());
       setState(() {
         userData = user;
         switchMetronome(user.currentIndex);
@@ -177,6 +176,14 @@ class _RootPageState extends State<RootPage> {
             ),
             TextButton(
               onPressed: () {
+                if (measureController.text.isEmpty) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text('Please enter a measure'),
+                    ),
+                  );
+                  return;
+                }
                 // check if measure is in range
                 if (int.parse(measureController.text) >
                     getTotalMeasures(metronomes)) {
@@ -684,7 +691,7 @@ class _RootPageState extends State<RootPage> {
                 ),
                 Container(
                   color: Colors.black12,
-                  height: newheight * 0.12,
+                  height: newheight * 0.15,
                   child: Container(
                     margin: const EdgeInsets.only(
                         left: 5.0, right: 5.0, bottom: 5.0),
@@ -698,6 +705,7 @@ class _RootPageState extends State<RootPage> {
                       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                       children: [
                         Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
                           children: [
                             TextButton(
                               onPressed: () {
@@ -719,6 +727,7 @@ class _RootPageState extends State<RootPage> {
                           color: Colors.black,
                         ),
                         Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
                           children: [
                             TextButton(
                               onPressed: () {
@@ -749,14 +758,14 @@ class _RootPageState extends State<RootPage> {
                 // TODO AD space
                 Container(
                   color: Colors.black12,
-                  height: newheight * (height < 512 ? 0.13 : 0.23) - 80,
+                  height: newheight * (height < 512 ? 0.15 : 0.25) - 80,
                 ),
                 // play controls
                 Container(
                   color: Colors.black12,
                   child: Container(
                     margin: const EdgeInsets.all(5.0),
-                    height: newheight * (height < 512 ? 0.35 : 0.25),
+                    height: newheight * (height < 512 ? 0.30 : 0.20),
                     decoration: BoxDecoration(
                       border: Border.all(color: Colors.black, width: 1),
                       color: Colors.white,
@@ -764,133 +773,135 @@ class _RootPageState extends State<RootPage> {
                     ),
                     child: Container(
                       margin: const EdgeInsets.all(5.0),
-                      child: Column(
-                        children: [
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                            children: [
-                              IconButton(
-                                  padding: EdgeInsets.zero,
-                                  onPressed: () {
-                                    // 40 is min
-                                    if (tempoPercent != 40) {
-                                      setState(() {
-                                        tempoPercent -= 1;
-                                        if (isPlaying) {
-                                          timer.cancel();
-                                          timer = Timer.periodic(
-                                              Duration(
-                                                  milliseconds: (getTime(
-                                                      metronomes[
-                                                              activeMetronome]
-                                                          .tempo,
-                                                      tempoPercent,
-                                                      metronomes[
-                                                              activeMetronome]
-                                                          .timeSignature))),
-                                              (timer) => timerParms());
-                                        }
-                                      });
-                                    }
-                                  },
-                                  icon: const Icon(
-                                    Icons.remove,
-                                    size: 45,
-                                  )),
-                              Text(
-                                '${(tempoPercent)}%',
-                                style: const TextStyle(fontSize: 25),
-                              ),
-                              IconButton(
-                                  padding: EdgeInsets.zero,
-                                  onPressed: () {
-                                    // 200 is max
-                                    if (tempoPercent != 200) {
-                                      setState(() {
-                                        tempoPercent += 1;
-                                        if (isPlaying) {
-                                          timer.cancel();
-                                          timer = Timer.periodic(
-                                              Duration(
-                                                  milliseconds: (getTime(
-                                                      metronomes[
-                                                              activeMetronome]
-                                                          .tempo,
-                                                      tempoPercent,
-                                                      metronomes[
-                                                              activeMetronome]
-                                                          .timeSignature))),
-                                              (timer) => timerParms());
-                                        }
-                                      });
-                                    }
-                                  },
-                                  icon: const Icon(
-                                    Icons.add,
-                                    size: 45,
-                                  )),
-                            ],
-                          ),
-                          const Divider(
-                            color: Colors.black,
-                          ),
-                          IconButton(
-                            padding: EdgeInsets.zero,
-                            color: playColor,
-                            onPressed: () {
-                              setState(() {
-                                if (isPlaying) {
-                                  // stop
-                                  timer.cancel();
-                                  isPlaying = false;
-                                  beat = 1;
-                                  leadInMeasure = 1;
-                                  measure = userMeasure;
-                                  currentMeasure = getCurrentMeasure(
-                                      metronomes, userMeasure);
-                                  activeMetronome = getMetronomeIndex(
-                                      metronomes, userMeasure);
-                                } else {
-                                  // start
-                                  soundPlayer.play(high);
-                                  isPlaying = true;
-                                  if (userData.leadIn) {
-                                    timer = Timer.periodic(
-                                        Duration(
-                                            milliseconds: (getTime(
-                                                userData.leadInMetronome.tempo,
-                                                tempoPercent,
-                                                userData.leadInMetronome
-                                                    .timeSignature))),
-                                        (timer) => leadInParms());
-                                  } else {
-                                    timer = Timer.periodic(
-                                        Duration(
-                                            milliseconds: (getTime(
-                                                metronomes[activeMetronome]
-                                                    .tempo,
-                                                tempoPercent,
-                                                metronomes[activeMetronome]
-                                                    .timeSignature))),
-                                        (timer) => timerParms());
-                                  }
-                                }
-                                playColor = Colors.cyan;
-                              });
-                              Timer(const Duration(milliseconds: 100), () {
-                                setState(() {
-                                  playColor = Colors.black;
-                                });
-                              });
-                            },
-                            icon: Icon(
-                              isPlaying
-                                  ? Icons.pause
-                                  : Icons.play_arrow_rounded,
+                      child: SingleChildScrollView(
+                        child: Column(
+                          children: [
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                              children: [
+                                IconButton(
+                                    padding: EdgeInsets.zero,
+                                    onPressed: () {
+                                      // 40 is min
+                                      if (tempoPercent != 40) {
+                                        setState(() {
+                                          tempoPercent -= 1;
+                                          if (isPlaying) {
+                                            timer.cancel();
+                                            timer = Timer.periodic(
+                                                Duration(
+                                                    milliseconds: (getTime(
+                                                        metronomes[
+                                                                activeMetronome]
+                                                            .tempo,
+                                                        tempoPercent,
+                                                        metronomes[
+                                                                activeMetronome]
+                                                            .timeSignature))),
+                                                (timer) => timerParms());
+                                          }
+                                        });
+                                      }
+                                    },
+                                    icon: const Icon(
+                                      Icons.remove,
+                                      size: 45,
+                                    )),
+                                Text(
+                                  '${(tempoPercent)}%',
+                                  style: const TextStyle(fontSize: 25),
+                                ),
+                                IconButton(
+                                    padding: EdgeInsets.zero,
+                                    onPressed: () {
+                                      // 200 is max
+                                      if (tempoPercent != 200) {
+                                        setState(() {
+                                          tempoPercent += 1;
+                                          if (isPlaying) {
+                                            timer.cancel();
+                                            timer = Timer.periodic(
+                                                Duration(
+                                                    milliseconds: (getTime(
+                                                        metronomes[
+                                                                activeMetronome]
+                                                            .tempo,
+                                                        tempoPercent,
+                                                        metronomes[
+                                                                activeMetronome]
+                                                            .timeSignature))),
+                                                (timer) => timerParms());
+                                          }
+                                        });
+                                      }
+                                    },
+                                    icon: const Icon(
+                                      Icons.add,
+                                      size: 45,
+                                    )),
+                              ],
                             ),
-                            iconSize: 60,
-                          ),
-                        ],
+                            const Divider(
+                              color: Colors.black,
+                            ),
+                            IconButton(
+                              padding: EdgeInsets.zero,
+                              color: playColor,
+                              onPressed: () {
+                                setState(() {
+                                  if (isPlaying) {
+                                    // stop
+                                    timer.cancel();
+                                    isPlaying = false;
+                                    beat = 1;
+                                    leadInMeasure = 1;
+                                    measure = userMeasure;
+                                    currentMeasure = getCurrentMeasure(
+                                        metronomes, userMeasure);
+                                    activeMetronome = getMetronomeIndex(
+                                        metronomes, userMeasure);
+                                  } else {
+                                    // start
+                                    soundPlayer.play(high);
+                                    isPlaying = true;
+                                    if (userData.leadIn) {
+                                      timer = Timer.periodic(
+                                          Duration(
+                                              milliseconds: (getTime(
+                                                  userData.leadInMetronome.tempo,
+                                                  tempoPercent,
+                                                  userData.leadInMetronome
+                                                      .timeSignature))),
+                                          (timer) => leadInParms());
+                                    } else {
+                                      timer = Timer.periodic(
+                                          Duration(
+                                              milliseconds: (getTime(
+                                                  metronomes[activeMetronome]
+                                                      .tempo,
+                                                  tempoPercent,
+                                                  metronomes[activeMetronome]
+                                                      .timeSignature))),
+                                          (timer) => timerParms());
+                                    }
+                                  }
+                                  playColor = Colors.cyan;
+                                });
+                                Timer(const Duration(milliseconds: 100), () {
+                                  setState(() {
+                                    playColor = Colors.black;
+                                  });
+                                });
+                              },
+                              icon: Icon(
+                                isPlaying
+                                    ? Icons.pause
+                                    : Icons.play_arrow_rounded,
+                              ),
+                              iconSize: newheight < 600 ? 45 : 60,
+                            ),
+                          ],
+                        ),
                       ),
                     ),
                   ),
