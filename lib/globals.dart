@@ -423,6 +423,18 @@ String getMeasureRangeMetronome(List<Metronome> metronomes, int index) {
   return '';
 }
 
+String getTotalRange(List<Metronome> metronomes) {
+  int totalMeasures = getTotalMeasures(metronomes);
+  String range = '';
+  if (totalMeasures != 0) {
+    range = '1 - $totalMeasures';
+  } else {
+    range = '1 - ∞';
+  }
+
+  return range;
+}
+
 int getTotalMeasures(List<Metronome> metronomes) {
   int totalMeasures = 0;
   for (int i = 0; i < metronomes.length; i++) {

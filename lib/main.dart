@@ -154,27 +154,21 @@ class _RootPageState extends State<RootPage> {
       context: context,
       builder: (context) {
         return AlertDialog(
-          title: const Text('Edit Section Start'),
+          title: const Text('Edit Measure Start'),
           content: Column(
             mainAxisSize: MainAxisSize.min,
             children: <Widget>[
-              DropdownButtonFormField(
-                items: getStringMeasures(metronomes).map(
-                  (metronome) {
-                    return DropdownMenuItem(
-                      value: metronome,
-                      child: Text(metronome),
-                    );
-                  },
-                ).toList(),
-                onChanged: (value) {
-                  measureController.text = value!;
-                },
+              Text(getTotalRange(metronomes)),
+              TextFormField(
+                controller: measureController,
+                keyboardType: TextInputType.number,
+                inputFormatters: <TextInputFormatter>[
+                  FilteringTextInputFormatter.digitsOnly
+                ],
                 decoration: const InputDecoration(
-                  labelText: 'Section',
-                  hintText: 'Select a section',
+                  labelText: 'Measure',
+                  hintText: 'Enter a measure',
                 ),
-                value: measureController.text,
               ),
             ],
           ),
@@ -187,6 +181,47 @@ class _RootPageState extends State<RootPage> {
             ),
             TextButton(
               onPressed: () {
+                // check if measure is in range
+                if (int.parse(measureController.text) >
+                    getTotalMeasures(metronomes)) {
+                  // check if totalMeasures is 0
+                  if (getTotalMeasures(metronomes) == 0) {
+                    setState(() {
+                      userMeasure = int.parse(measureController.text);
+                      measure = userMeasure;
+                      currentMeasure =
+                          getCurrentMeasure(metronomes, userMeasure);
+                      activeMetronome =
+                          getMetronomeIndex(metronomes, userMeasure);
+                    });
+                    Navigator.pop(context);
+                    return;
+                  }
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text('Measure is out of range'),
+                    ),
+                  );
+                  return;
+                }
+                // check if measure is less than 1
+                if (int.parse(measureController.text) < 1) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text('Measure must be greater than 0'),
+                    ),
+                  );
+                  return;
+                }
+                // check if measure is 0
+                if (int.parse(measureController.text) == 0) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text('Measure must be greater than 0'),
+                    ),
+                  );
+                  return;
+                }
                 setState(() {
                   userMeasure = int.parse(measureController.text);
                   measure = userMeasure;
@@ -442,353 +477,367 @@ class _RootPageState extends State<RootPage> {
         ],
       ),
       body: Scaffold(
-        body: Column(
-          children: [
-            // blue line
-            Container(
-              padding: const EdgeInsets.all(2.0),
-              color: Colors.cyan,
-            ),
-            // metronome display
-            Container(
-              padding: const EdgeInsets.all(10.0),
-              color: Colors.black,
-              width: double.infinity,
-              height: newheight * 0.25,
-              child: Center(
-                child: Column(
-                  mainAxisAlignment:
-                      metronomes[activeMetronome].beatsPerMeasure < 6
-                          ? MainAxisAlignment.center
-                          : MainAxisAlignment.spaceEvenly,
-                  children: [
-                    //metronome less than 6 beats
-                    if (metronomes[activeMetronome].beatsPerMeasure < 6)
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                        children: [
-                          for (var i = 0;
-                              i < metronomes[activeMetronome].beatsPerMeasure;
-                              i++)
-                            Container(
-                              padding: const EdgeInsets.all(45.0),
-                              height: 45,
-                              width: 45,
-                              decoration: BoxDecoration(
-                                color: Colors.cyan,
-                                borderRadius: BorderRadius.circular(15.0),
-                                boxShadow: isPlaying
-                                    ? boxShadows
-                                        .map((shadow) => i == (beat - 1)
-                                            ? shadow
-                                            : const BoxShadow())
-                                        .toList()
-                                    : [],
-                              ),
-                            ),
-                        ],
-                      )
-                    else
-                      // metronome greater than 6 beats
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                        children: [
-                          for (var i = 0; i < 6; i++)
-                            Container(
-                              padding: const EdgeInsets.all(45.0),
-                              height: 45,
-                              width: 45,
-                              decoration: BoxDecoration(
-                                color: Colors.cyan,
-                                borderRadius: BorderRadius.circular(15.0),
-                                boxShadow: isPlaying
-                                    ? boxShadows
-                                        .map((shadow) => i == (beat - 1)
-                                            ? shadow
-                                            : const BoxShadow())
-                                        .toList()
-                                    : [],
-                              ),
-                            ),
-                        ],
-                      ),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+        body: Center(
+          child: SingleChildScrollView(
+            child: Column(
+              children: [
+                // blue line
+                Container(
+                  padding: const EdgeInsets.all(2.0),
+                  color: Colors.cyan,
+                ),
+                // metronome display
+                Container(
+                  padding: const EdgeInsets.all(10.0),
+                  color: Colors.black,
+                  width: double.infinity,
+                  height: newheight * 0.25,
+                  child: Center(
+                    child: Column(
+                      mainAxisAlignment:
+                          metronomes[activeMetronome].beatsPerMeasure < 6
+                              ? MainAxisAlignment.center
+                              : MainAxisAlignment.spaceEvenly,
                       children: [
-                        for (var i = 6;
-                            i < metronomes[activeMetronome].beatsPerMeasure;
-                            i++)
-                          Container(
-                            padding: const EdgeInsets.all(45.0),
-                            height: 45,
-                            width: 45,
-                            decoration: BoxDecoration(
-                              color: Colors.cyan,
-                              borderRadius: BorderRadius.circular(15.0),
-                              boxShadow: isPlaying
-                                  ? boxShadows
-                                      .map((shadow) => i == (beat - 1)
-                                          ? shadow
-                                          : const BoxShadow())
-                                      .toList()
-                                  : [],
-                            ),
+                        //metronome less than 6 beats
+                        if (metronomes[activeMetronome].beatsPerMeasure < 6)
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                            children: [
+                              for (var i = 0;
+                                  i <
+                                      metronomes[activeMetronome]
+                                          .beatsPerMeasure;
+                                  i++)
+                                Container(
+                                  padding: const EdgeInsets.all(45.0),
+                                  height: 45,
+                                  width: 45,
+                                  decoration: BoxDecoration(
+                                    color: Colors.cyan,
+                                    borderRadius: BorderRadius.circular(15.0),
+                                    boxShadow: isPlaying
+                                        ? boxShadows
+                                            .map((shadow) => i == (beat - 1)
+                                                ? shadow
+                                                : const BoxShadow())
+                                            .toList()
+                                        : [],
+                                  ),
+                                ),
+                            ],
+                          )
+                        else
+                          // metronome greater than 6 beats
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                            children: [
+                              for (var i = 0; i < 6; i++)
+                                Container(
+                                  padding: const EdgeInsets.all(45.0),
+                                  height: 45,
+                                  width: 45,
+                                  decoration: BoxDecoration(
+                                    color: Colors.cyan,
+                                    borderRadius: BorderRadius.circular(15.0),
+                                    boxShadow: isPlaying
+                                        ? boxShadows
+                                            .map((shadow) => i == (beat - 1)
+                                                ? shadow
+                                                : const BoxShadow())
+                                            .toList()
+                                        : [],
+                                  ),
+                                ),
+                            ],
                           ),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                          children: [
+                            for (var i = 6;
+                                i < metronomes[activeMetronome].beatsPerMeasure;
+                                i++)
+                              Container(
+                                padding: const EdgeInsets.all(45.0),
+                                height: 45,
+                                width: 45,
+                                decoration: BoxDecoration(
+                                  color: Colors.cyan,
+                                  borderRadius: BorderRadius.circular(15.0),
+                                  boxShadow: isPlaying
+                                      ? boxShadows
+                                          .map((shadow) => i == (beat - 1)
+                                              ? shadow
+                                              : const BoxShadow())
+                                          .toList()
+                                      : [],
+                                ),
+                              ),
+                          ],
+                        )
                       ],
-                    )
-                  ],
+                    ),
+                  ),
                 ),
-              ),
-            ),
-            // metronome controls
-            Container(
-              color: Colors.black12,
-              child: Container(
-                margin: const EdgeInsets.all(5.0),
-                height: newheight * 0.15,
-                decoration: BoxDecoration(
-                  border: Border.all(color: Colors.black, width: 1),
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(16.0),
-                ),
-                child: Container(
-                  margin: const EdgeInsets.all(5.0),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                    children: [
-                      Column(
+                // metronome controls
+                Container(
+                  color: Colors.black12,
+                  child: Container(
+                    margin: const EdgeInsets.all(5.0),
+                    height: newheight * 0.15,
+                    decoration: BoxDecoration(
+                      border: Border.all(color: Colors.black, width: 1),
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(16.0),
+                    ),
+                    child: Container(
+                      margin: const EdgeInsets.all(5.0),
+                      child: Row(
                         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                         children: [
-                          const Text('BPM'),
-                          Text(
-                            '${(metronomes[activeMetronome].tempo)}',
-                            style: const TextStyle(fontSize: 25),
+                          Column(
+                            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                            children: [
+                              const Text('BPM'),
+                              Text(
+                                '${(metronomes[activeMetronome].tempo)}',
+                                style: const TextStyle(fontSize: 25),
+                              ),
+                            ],
                           ),
-                        ],
-                      ),
-                      const VerticalDivider(
-                        thickness: 1,
-                        color: Colors.black,
-                      ),
-                      Column(
-                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                        children: [
-                          const Text('Time Signature'),
-                          Text(
-                            '${(metronomes[activeMetronome].beatsPerMeasure)}'
-                            '/${(metronomes[activeMetronome].timeSignature)}',
-                            style: const TextStyle(fontSize: 25),
+                          const VerticalDivider(
+                            thickness: 1,
+                            color: Colors.black,
+                          ),
+                          Column(
+                            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                            children: [
+                              const Text('Time Signature'),
+                              Text(
+                                '${(metronomes[activeMetronome].beatsPerMeasure)}'
+                                '/${(metronomes[activeMetronome].timeSignature)}',
+                                style: const TextStyle(fontSize: 25),
+                              )
+                            ],
+                          ),
+                          const VerticalDivider(
+                            thickness: 1,
+                            color: Colors.black,
+                          ),
+                          IconButton(
+                            onPressed: () {
+                              Navigator.pushNamed(context, '/tempo');
+                            },
+                            icon: const Icon(Icons.edit),
                           )
                         ],
                       ),
-                      const VerticalDivider(
-                        thickness: 1,
-                        color: Colors.black,
-                      ),
-                      IconButton(
-                        onPressed: () {
-                          Navigator.pushNamed(context, '/tempo');
-                        },
-                        icon: const Icon(Icons.edit),
-                      )
-                    ],
+                    ),
                   ),
                 ),
-              ),
-            ),
-            Container(
-              color: Colors.black12,
-              height: newheight * 0.12,
-              child: Container(
-                margin:
-                    const EdgeInsets.only(left: 5.0, right: 5.0, bottom: 5.0),
-                height: newheight * 0.12,
-                decoration: BoxDecoration(
-                  border: Border.all(color: Colors.black, width: 1),
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(16.0),
-                ),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                  children: [
-                    Column(
+                Container(
+                  color: Colors.black12,
+                  height: newheight * 0.12,
+                  child: Container(
+                    margin: const EdgeInsets.only(
+                        left: 5.0, right: 5.0, bottom: 5.0),
+                    height: newheight * 0.12,
+                    decoration: BoxDecoration(
+                      border: Border.all(color: Colors.black, width: 1),
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(16.0),
+                    ),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                       children: [
-                        TextButton(
-                          onPressed: () {
-                            showEditSectionStart(context,
-                                getSectionIndex(sections, measure), sections);
-                          },
-                          child: const Text('Section▼'),
-                        ),
-                        Text(
-                          getSection(sections, measure),
-                          style: const TextStyle(fontSize: 18),
-                        ),
-                      ],
-                    ),
-                    const VerticalDivider(
-                      thickness: 1,
-                      color: Colors.black,
-                    ),
-                    Column(
-                      children: [
-                        TextButton(
-                          onPressed: () {
-                            showEditMeasureStart(context, measure);
-                          },
-                          child: const Text('Measure▼'),
-                        ),
-                        Text(
-                          '$measure',
-                          style: const TextStyle(fontSize: 18),
-                        ),
-                      ],
-                    ),
-                    const VerticalDivider(
-                      thickness: 1,
-                      color: Colors.black,
-                    ),
-                    IconButton(
-                      onPressed: () {
-                        Navigator.pushNamed(context, '/section');
-                      },
-                      icon: const Icon(Icons.edit),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-            // TODO AD space
-            Container(
-              color: Colors.black12,
-              height: newheight * (height < 512 ? 0.13 : 0.23) - 80,
-            ),
-            // play controls
-            Container(
-              color: Colors.black12,
-              child: Container(
-                margin: const EdgeInsets.all(5.0),
-                height: newheight * (height < 512 ? 0.35 : 0.25),
-                decoration: BoxDecoration(
-                  border: Border.all(color: Colors.black, width: 1),
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(16.0),
-                ),
-                child: Container(
-                  margin: const EdgeInsets.all(5.0),
-                  child: Column(
-                    children: [
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                        children: [
-                          IconButton(
-                              padding: EdgeInsets.zero,
+                        Column(
+                          children: [
+                            TextButton(
                               onPressed: () {
-                                // 40 is min
-                                if (tempoPercent != 40) {
-                                  setState(() {
-                                    tempoPercent -= 1;
-                                    if (isPlaying) {
-                                      timer.cancel();
-                                      timer = Timer.periodic(
-                                          Duration(
-                                              milliseconds: (getTime(
-                                                  metronomes[activeMetronome]
-                                                      .tempo,
-                                                  tempoPercent,
-                                                  metronomes[activeMetronome]
-                                                      .timeSignature))),
-                                          (timer) => timerParms());
-                                    }
-                                  });
-                                }
+                                showEditSectionStart(
+                                    context,
+                                    getSectionIndex(sections, measure),
+                                    sections);
                               },
-                              icon: const Icon(
-                                Icons.remove,
-                                size: 45,
-                              )),
-                          Text(
-                            '${(tempoPercent)}%',
-                            style: const TextStyle(fontSize: 25),
+                              child: const Text('Section▼'),
+                            ),
+                            Text(
+                              getSection(sections, measure),
+                              style: const TextStyle(fontSize: 18),
+                            ),
+                          ],
+                        ),
+                        const VerticalDivider(
+                          thickness: 1,
+                          color: Colors.black,
+                        ),
+                        Column(
+                          children: [
+                            TextButton(
+                              onPressed: () {
+                                showEditMeasureStart(context, measure);
+                              },
+                              child: const Text('Measure▼'),
+                            ),
+                            Text(
+                              '$measure',
+                              style: const TextStyle(fontSize: 18),
+                            ),
+                          ],
+                        ),
+                        const VerticalDivider(
+                          thickness: 1,
+                          color: Colors.black,
+                        ),
+                        IconButton(
+                          onPressed: () {
+                            Navigator.pushNamed(context, '/section');
+                          },
+                          icon: const Icon(Icons.edit),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+                // TODO AD space
+                Container(
+                  color: Colors.black12,
+                  height: newheight * (height < 512 ? 0.13 : 0.23) - 80,
+                ),
+                // play controls
+                Container(
+                  color: Colors.black12,
+                  child: Container(
+                    margin: const EdgeInsets.all(5.0),
+                    height: newheight * (height < 512 ? 0.35 : 0.25),
+                    decoration: BoxDecoration(
+                      border: Border.all(color: Colors.black, width: 1),
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(16.0),
+                    ),
+                    child: Container(
+                      margin: const EdgeInsets.all(5.0),
+                      child: Column(
+                        children: [
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                            children: [
+                              IconButton(
+                                  padding: EdgeInsets.zero,
+                                  onPressed: () {
+                                    // 40 is min
+                                    if (tempoPercent != 40) {
+                                      setState(() {
+                                        tempoPercent -= 1;
+                                        if (isPlaying) {
+                                          timer.cancel();
+                                          timer = Timer.periodic(
+                                              Duration(
+                                                  milliseconds: (getTime(
+                                                      metronomes[
+                                                              activeMetronome]
+                                                          .tempo,
+                                                      tempoPercent,
+                                                      metronomes[
+                                                              activeMetronome]
+                                                          .timeSignature))),
+                                              (timer) => timerParms());
+                                        }
+                                      });
+                                    }
+                                  },
+                                  icon: const Icon(
+                                    Icons.remove,
+                                    size: 45,
+                                  )),
+                              Text(
+                                '${(tempoPercent)}%',
+                                style: const TextStyle(fontSize: 25),
+                              ),
+                              IconButton(
+                                  padding: EdgeInsets.zero,
+                                  onPressed: () {
+                                    // 200 is max
+                                    if (tempoPercent != 200) {
+                                      setState(() {
+                                        tempoPercent += 1;
+                                        if (isPlaying) {
+                                          timer.cancel();
+                                          timer = Timer.periodic(
+                                              Duration(
+                                                  milliseconds: (getTime(
+                                                      metronomes[
+                                                              activeMetronome]
+                                                          .tempo,
+                                                      tempoPercent,
+                                                      metronomes[
+                                                              activeMetronome]
+                                                          .timeSignature))),
+                                              (timer) => timerParms());
+                                        }
+                                      });
+                                    }
+                                  },
+                                  icon: const Icon(
+                                    Icons.add,
+                                    size: 45,
+                                  )),
+                            ],
+                          ),
+                          const Divider(
+                            color: Colors.black,
                           ),
                           IconButton(
-                              padding: EdgeInsets.zero,
-                              onPressed: () {
-                                // 200 is max
-                                if (tempoPercent != 200) {
-                                  setState(() {
-                                    tempoPercent += 1;
-                                    if (isPlaying) {
-                                      timer.cancel();
-                                      timer = Timer.periodic(
-                                          Duration(
-                                              milliseconds: (getTime(
-                                                  metronomes[activeMetronome]
-                                                      .tempo,
-                                                  tempoPercent,
-                                                  metronomes[activeMetronome]
-                                                      .timeSignature))),
-                                          (timer) => timerParms());
-                                    }
-                                  });
+                            padding: EdgeInsets.zero,
+                            color: playColor,
+                            onPressed: () {
+                              setState(() {
+                                if (isPlaying) {
+                                  // stop
+                                  timer.cancel();
+                                  isPlaying = false;
+                                  beat = 1;
+                                  measure = userMeasure;
+                                  currentMeasure = getCurrentMeasure(
+                                      metronomes, userMeasure);
+                                  activeMetronome = getMetronomeIndex(
+                                      metronomes, userMeasure);
+                                } else {
+                                  // start
+                                  soundPlayer.play(high);
+                                  isPlaying = true;
+                                  timer = Timer.periodic(
+                                      Duration(
+                                          milliseconds: (getTime(
+                                              metronomes[activeMetronome].tempo,
+                                              tempoPercent,
+                                              metronomes[activeMetronome]
+                                                  .timeSignature))),
+                                      (timer) => timerParms());
                                 }
-                              },
-                              icon: const Icon(
-                                Icons.add,
-                                size: 45,
-                              )),
+                                playColor = Colors.cyan;
+                              });
+                              Timer(const Duration(milliseconds: 100), () {
+                                setState(() {
+                                  playColor = Colors.black;
+                                });
+                              });
+                            },
+                            icon: Icon(
+                              isPlaying
+                                  ? Icons.pause
+                                  : Icons.play_arrow_rounded,
+                            ),
+                            iconSize: 60,
+                          ),
                         ],
                       ),
-                      const Divider(
-                        color: Colors.black,
-                      ),
-                      IconButton(
-                        padding: EdgeInsets.zero,
-                        color: playColor,
-                        onPressed: () {
-                          setState(() {
-                            if (isPlaying) {
-                              // stop
-                              timer.cancel();
-                              isPlaying = false;
-                              beat = 1;
-                              measure = userMeasure;
-                              currentMeasure =
-                                  getCurrentMeasure(metronomes, userMeasure);
-                              activeMetronome =
-                                  getMetronomeIndex(metronomes, userMeasure);
-                            } else {
-                              // start
-                              soundPlayer.play(high);
-                              isPlaying = true;
-                              timer = Timer.periodic(
-                                  Duration(
-                                      milliseconds: (getTime(
-                                          metronomes[activeMetronome].tempo,
-                                          tempoPercent,
-                                          metronomes[activeMetronome]
-                                              .timeSignature))),
-                                  (timer) => timerParms());
-                            }
-                            playColor = Colors.cyan;
-                          });
-                          Timer(const Duration(milliseconds: 100), () {
-                            setState(() {
-                              playColor = Colors.black;
-                            });
-                          });
-                        },
-                        icon: Icon(
-                          isPlaying ? Icons.pause : Icons.play_arrow_rounded,
-                        ),
-                        iconSize: 60,
-                      ),
-                    ],
+                    ),
                   ),
                 ),
-              ),
+              ],
             ),
-          ],
+          ),
         ),
       ),
     );
