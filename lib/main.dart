@@ -478,12 +478,54 @@ class _RootPageState extends State<RootPage> {
     super.dispose();
   }
 
+  double getHeight(double screenHeight, String widget) {
+    if (widget == 'display') {
+      if (screenHeight < 610) {
+        return screenHeight * 0.2;
+      }
+      if (screenHeight < 800) {
+        return screenHeight * 0.25;
+      }
+      if (screenHeight > 800) {
+        return screenHeight * 0.32;
+      }
+    }
+    if (widget == 'controls') {
+      if (screenHeight < 610) {
+        return screenHeight * 0.10;
+      }
+      if (screenHeight < 700) {
+        return screenHeight * 0.12;
+      }
+      if (screenHeight > 700) {
+        return screenHeight * 0.15;
+      }
+    }
+    if (widget == 'play') {
+      if (screenHeight < 610) {
+        return screenHeight * (0.55) - 180;
+      }
+      if (screenHeight < 700) {
+        return screenHeight * (0.48) - 180;
+      }
+      if (screenHeight < 800) {
+        return screenHeight * (0.45) - 180;
+      }
+      if (screenHeight > 800) {
+        return screenHeight * (0.38) - 180;
+      }
+    }
+    return screenHeight * 0.3;
+  }
+
   @override
   Widget build(BuildContext context) {
     // screen size
     double height = MediaQuery.of(context).size.height;
     var padding = MediaQuery.of(context).padding;
     double newheight = height - padding.top - padding.bottom;
+
+    debugPrint('newheight: $newheight');
 
     return Scaffold(
       appBar: AppBar(
@@ -576,7 +618,7 @@ class _RootPageState extends State<RootPage> {
                   padding: const EdgeInsets.all(10.0),
                   color: Colors.black,
                   width: double.infinity,
-                  height: newheight * 0.25,
+                  height: getHeight(newheight, 'display'),
                   child: Center(
                     child: Column(
                       mainAxisAlignment:
@@ -669,7 +711,7 @@ class _RootPageState extends State<RootPage> {
                   color: Colors.black12,
                   child: Container(
                     margin: const EdgeInsets.all(5.0),
-                    height: newheight * 0.15,
+                    height: getHeight(newheight, 'controls'),
                     decoration: BoxDecoration(
                       border: Border.all(color: Colors.black, width: 1),
                       color: Colors.white,
@@ -801,7 +843,7 @@ class _RootPageState extends State<RootPage> {
                   color: Colors.black12,
                   child: Container(
                     margin: const EdgeInsets.all(5.0),
-                    height: newheight * (0.45) - 180,
+                    height: getHeight(newheight, 'play'),
                     decoration: BoxDecoration(
                       border: Border.all(color: Colors.black, width: 1),
                       color: Colors.white,
