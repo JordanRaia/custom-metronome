@@ -2,11 +2,13 @@ import 'dart:async';
 import 'package:custom_metronome/sections.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:soundpool/soundpool.dart';
 import 'package:custom_metronome/tempo.dart';
 import 'package:custom_metronome/globals.dart';
 import 'package:custom_metronome/metronomes.dart';
 import 'package:custom_metronome/settings.dart';
+import 'package:custom_metronome/ad_helper.dart';
 
 void main() {
   runApp(const MyApp());
@@ -54,6 +56,13 @@ class _RootPageState extends State<RootPage> {
       debugPrint(e.toString());
     }
   }
+
+  // ads
+  Future<InitializationStatus> _initGoogleMobileAds() {
+    return MobileAds.instance.initialize();
+  }
+
+  BannerAd? _bannerAd;
 
   // colors
   var playColor = Colors.black;
@@ -350,7 +359,6 @@ class _RootPageState extends State<RootPage> {
         leadInMeasure += 1;
       } else {
         // last measure, start up the metronome
-        debugPrint('here');
         timer.cancel();
         timer = Timer.periodic(
             Duration(
@@ -445,6 +453,29 @@ class _RootPageState extends State<RootPage> {
     loadSounds();
     // load user data
     loadSharedPrefs();
+    // ads
+    BannerAd(
+      adUnitId: AdHelper.bannerAdUnitId,
+      request: const AdRequest(),
+      size: AdSize.largeBanner,
+      listener: BannerAdListener(
+        onAdLoaded: (ad) {
+          setState(() {
+            _bannerAd = ad as BannerAd;
+          });
+        },
+        onAdFailedToLoad: (ad, err) {
+          debugPrint('Failed to load a banner ad: ${err.message}');
+          ad.dispose();
+        },
+      ),
+    ).load();
+  }
+
+  @override
+  void dispose() {
+    _bannerAd?.dispose();
+    super.dispose();
   }
 
   @override
@@ -755,17 +786,22 @@ class _RootPageState extends State<RootPage> {
                     ),
                   ),
                 ),
-                // TODO AD space
                 Container(
-                  color: Colors.black12,
-                  height: newheight * (height < 512 ? 0.15 : 0.25) - 80,
-                ),
+                    color: Colors.black12,
+                    height: 100,
+                    child: _bannerAd == null
+                        ? Container()
+                        : SizedBox(
+                            width: double.infinity,
+                            height: _bannerAd!.size.height.toDouble(),
+                            child: AdWidget(ad: _bannerAd!),
+                          )),
                 // play controls
                 Container(
                   color: Colors.black12,
                   child: Container(
                     margin: const EdgeInsets.all(5.0),
-                    height: newheight * (height < 512 ? 0.30 : 0.20),
+                    height: newheight * (0.45) - 180,
                     decoration: BoxDecoration(
                       border: Border.all(color: Colors.black, width: 1),
                       color: Colors.white,
@@ -868,7 +904,8 @@ class _RootPageState extends State<RootPage> {
                                       timer = Timer.periodic(
                                           Duration(
                                               milliseconds: (getTime(
-                                                  userData.leadInMetronome.tempo,
+                                                  userData
+                                                      .leadInMetronome.tempo,
                                                   tempoPercent,
                                                   userData.leadInMetronome
                                                       .timeSignature))),

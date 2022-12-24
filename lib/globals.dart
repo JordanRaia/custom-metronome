@@ -474,7 +474,6 @@ List<String> getStringMeasures(List<Metronome> metronomes) {
 
 int getCurrentMeasure(List<Metronome> metronomes, int measure) {
   int totalMeasures = 0;
-  debugPrint('$metronomes');
   for (int i = 0; i < metronomes.length; i++) {
     totalMeasures += metronomes[i].measures;
     if (measure <= totalMeasures) {
