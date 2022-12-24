@@ -3,10 +3,10 @@ import 'package:custom_metronome/sections.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:soundpool/soundpool.dart';
-// import 'package:shared_preferences/shared_preferences.dart';
 import 'package:custom_metronome/tempo.dart';
 import 'package:custom_metronome/globals.dart';
 import 'package:custom_metronome/metronomes.dart';
+import 'package:custom_metronome/settings.dart';
 
 void main() {
   runApp(const MyApp());
@@ -22,14 +22,10 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(primarySwatch: Colors.grey),
       home: const RootPage(),
       routes: {
-        '/tempo': (context) => WillPopScope(
-              onWillPop: () async {
-                return true;
-              },
-              child: const EditTempo(),
-            ),
+        '/tempo': (context) => const EditTempo(),
         '/section': (context) => const EditSection(),
         '/metronome': (context) => const EditMetronome(),
+        '/settings': (context) => const SettingsPage(),
       },
     );
   }
@@ -47,6 +43,7 @@ class _RootPageState extends State<RootPage> {
   void loadSharedPrefs() async {
     try {
       UserData user = UserData.fromJson(await sharedPref.read("user"));
+      debugPrint(user.toString());
       setState(() {
         userData = user;
         switchMetronome(user.currentIndex);
@@ -483,9 +480,10 @@ class _RootPageState extends State<RootPage> {
             icon: Icon(isMute ? Icons.volume_mute : Icons.volume_up),
             color: isMute ? Colors.teal : Colors.white,
           ),
-          // TODO add settings page with lead in measure settings
           IconButton(
-            onPressed: () {},
+            onPressed: () {
+              Navigator.pushNamed(context, '/settings');
+            },
             icon: const Icon(Icons.settings),
             color: Colors.white,
           ),

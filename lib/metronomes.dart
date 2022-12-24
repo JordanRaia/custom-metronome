@@ -58,6 +58,8 @@ class EditMetronomeState extends State<EditMetronome> {
                   setState(() {
                     userData.metronomeData[index].name = nameController.text;
                   });
+                  // save changes
+                  sharedPref.save("user", userData);
                   Navigator.of(context).pop();
                 },
                 child: const Text('Save'),
@@ -122,6 +124,8 @@ class EditMetronomeState extends State<EditMetronome> {
                     ]));
                   },
                 );
+                // save changes
+                sharedPref.save("user", userData);
                 Navigator.of(context).pop();
               },
               child: const Text('Save'),

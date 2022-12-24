@@ -193,6 +193,9 @@ class EditSectionState extends State<EditSection> {
                       setState(() {
                         sections.removeAt(index);
                       });
+
+                      // save changes
+                      sharedPref.save("user", userData);
                     },
                     icon: const Icon(Icons.delete),
                   ),

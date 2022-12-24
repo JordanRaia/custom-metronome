@@ -317,6 +317,9 @@ class EditTempoState extends State<EditTempo> {
                         setState(() {
                           metronomes.removeAt(index);
                         });
+
+                        // save changes
+                        sharedPref.save("user", userData);
                       },
                       icon: const Icon(Icons.delete),
                     ),

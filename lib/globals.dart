@@ -254,6 +254,10 @@ List<Section> exampleSection = [
 
 UserData userData = UserData(
   currentIndex: 0,
+  leadIn: false,
+  leadInMetronome: Metronome(
+    measures: 1,
+  ),
   metronomeData: [
     CustomMetronome(name: 'Example Metronome', metronomes: exampleMetronome),
   ],
@@ -267,6 +271,8 @@ List<Metronome> metronomes =
 
 List<Section> sections = userData.sectionData[userData.currentIndex].sections;
 
+// Metronome leadInMetronome = userData.leadInMetronome;
+
 class UserData {
   // all the user's saved metronomes
   List<CustomMetronome> metronomeData;
@@ -277,14 +283,24 @@ class UserData {
   // the user's current metronome and section
   int currentIndex;
 
+  // bool for if the user wants to play a lead in
+  bool leadIn;
+
+  // the lead in metronome
+  Metronome leadInMetronome;
+
   UserData({
     this.currentIndex = 0,
     this.metronomeData = const [],
     this.sectionData = const [],
+    this.leadIn = false,
+    required this.leadInMetronome,
   });
 
   UserData.fromJson(Map<String, dynamic> json)
       : currentIndex = json['currentIndex'],
+        leadIn = json['leadIn'],
+        leadInMetronome = Metronome.fromJson(json['leadInMetronome']),
         metronomeData = json['metronomeData']
             .map<CustomMetronome>((m) => CustomMetronome.fromJson(m))
             .toList(),
@@ -294,6 +310,8 @@ class UserData {
 
   Map<String, dynamic> toJson() => {
         'currentIndex': currentIndex,
+        'leadIn': leadIn,
+        'leadInMetronome': leadInMetronome.toJson(),
         'metronomeData': metronomeData.map((m) => m.toJson()).toList(),
         'sectionData': sectionData.map((s) => s.toJson()).toList(),
       };
