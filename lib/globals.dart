@@ -640,3 +640,6 @@ class SharedPref {
     prefs.remove(key);
   }
 }
+
+//saving and loading
+SharedPref sharedPref = SharedPref();

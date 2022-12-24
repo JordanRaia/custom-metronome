@@ -128,6 +128,8 @@ class EditTempoState extends State<EditTempo> {
                     measures: measures,
                   );
                 });
+                // save changes
+                sharedPref.save("user", userData);
                 Navigator.of(context).pop();
               },
               child: const Text('Save'),
@@ -253,6 +255,8 @@ class EditTempoState extends State<EditTempo> {
                     measures: measures,
                   ));
                 });
+                // save changes
+                sharedPref.save("user", userData);
                 Navigator.of(context).pop();
               },
               child: const Text('Save'),

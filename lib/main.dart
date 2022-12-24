@@ -43,9 +43,7 @@ class RootPage extends StatefulWidget {
 }
 
 class _RootPageState extends State<RootPage> {
-  //saving and loading
-  SharedPref sharedPref = SharedPref();
-
+  // load shared prefs
   void loadSharedPrefs() async {
     try {
       UserData user = UserData.fromJson(await sharedPref.read("user"));
@@ -300,6 +298,9 @@ class _RootPageState extends State<RootPage> {
                   switchMetronome(selectedIndex);
                 });
 
+                // save changes
+                sharedPref.save("user", userData);
+
                 Navigator.pop(context);
               },
               child: const Text('Switch'),
@@ -434,16 +435,6 @@ class _RootPageState extends State<RootPage> {
               Navigator.pushNamed(context, '/metronome');
             },
             icon: const Icon(Icons.save),
-            color: Colors.white,
-          ),
-          IconButton(
-            onPressed: () {
-              // TODO test saving metronomes
-              debugPrint(userData.toString());
-              sharedPref.save("user", userData);
-              debugPrint('saved');
-            },
-            icon: const Icon(Icons.save_alt),
             color: Colors.white,
           ),
           // TODO add a new metronome then switch to it

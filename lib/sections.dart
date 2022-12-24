@@ -69,6 +69,8 @@ class EditSectionState extends State<EditSection> {
                     sections[index].measures =
                         int.parse(measuresController.text);
                   });
+                  // save changes
+                  sharedPref.save("user", userData);
                   Navigator.of(context).pop();
                 },
                 child: const Text('Save'),
@@ -127,6 +129,8 @@ class EditSectionState extends State<EditSection> {
 
                     sections.add(Section(name: name, measures: measures));
                   });
+                  // save changes
+                  sharedPref.save("user", userData);
                   Navigator.of(context).pop();
                 },
                 child: const Text('Save'),
