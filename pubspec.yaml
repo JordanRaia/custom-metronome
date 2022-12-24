@@ -39,6 +39,7 @@ dependencies:
     reliable_interval_timer: ^1.0.0
     soundpool: ^2.3.0
     path_provider: ^2.0.11
+    shared_preferences: ^2.0.15
 
 dev_dependencies:
     flutter_test:

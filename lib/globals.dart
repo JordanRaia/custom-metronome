@@ -1,7 +1,10 @@
 // global variable that holds the List of Metronome objects
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
-import 'dart:io';
-import 'package:path_provider/path_provider.dart';
+// import 'dart:io';
+// import 'package:path_provider/path_provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 // example metronome
 List<Metronome> exampleMetronome = [
@@ -279,6 +282,27 @@ class UserData {
     this.metronomeData = const [],
     this.sectionData = const [],
   });
+
+  UserData.fromJson(Map<String, dynamic> json)
+      : currentIndex = json['currentIndex'],
+        metronomeData = json['metronomeData']
+            .map<CustomMetronome>((m) => CustomMetronome.fromJson(m))
+            .toList(),
+        sectionData = json['sectionData']
+            .map<CustomSection>((s) => CustomSection.fromJson(s))
+            .toList();
+
+  Map<String, dynamic> toJson() => {
+        'currentIndex': currentIndex,
+        'metronomeData': metronomeData.map((m) => m.toJson()).toList(),
+        'sectionData': sectionData.map((s) => s.toJson()).toList(),
+      };
+
+  @override
+  String toString() {
+    return 'UserData{currentIndex: $currentIndex, '
+        'metronomeData: $metronomeData';
+  }
 }
 
 List<String> getMetronomeNames() {
@@ -318,6 +342,25 @@ class Metronome {
     this.timeSignature = defaultTimeSignature,
     this.measures = defaultMeasures,
   });
+
+  Metronome.fromJson(Map<String, dynamic> json)
+      : tempo = json['tempo'],
+        beatsPerMeasure = json['beatsPerMeasure'],
+        timeSignature = json['timeSignature'],
+        measures = json['measures'];
+
+  Map<String, dynamic> toJson() => {
+        'tempo': tempo,
+        'beatsPerMeasure': beatsPerMeasure,
+        'timeSignature': timeSignature,
+        'measures': measures,
+      };
+
+  @override
+  String toString() {
+    return 'Metronome{tempo: $tempo, beatsPerMeasure: $beatsPerMeasure, '
+        'timeSignature: $timeSignature, measures: $measures}';
+  }
 }
 
 // custom metronome object
@@ -332,6 +375,22 @@ class CustomMetronome {
     this.name = 'Untitled Metronome',
     this.metronomes = const [],
   });
+
+  CustomMetronome.fromJson(Map<String, dynamic> json)
+      : name = json['name'],
+        metronomes = json['metronomes']
+            .map<Metronome>((m) => Metronome.fromJson(m))
+            .toList();
+
+  Map<String, dynamic> toJson() => {
+        'name': name,
+        'metronomes': metronomes.map((m) => m.toJson()).toList(),
+      };
+
+  @override
+  String toString() {
+    return 'CustomMetronome{name: $name, metronomes: $metronomes}';
+  }
 }
 
 // get the measure range for a metronome
@@ -441,6 +500,15 @@ class Section {
     this.name = defaultName,
     this.measures = defaultMeasures,
   });
+
+  Section.fromJson(Map<String, dynamic> json)
+      : name = json['name'],
+        measures = json['measures'];
+
+  Map<String, dynamic> toJson() => {
+        'name': name,
+        'measures': measures,
+      };
 }
 
 // custom Section object
@@ -451,6 +519,14 @@ class CustomSection {
   CustomSection({
     this.sections = const [],
   });
+
+  CustomSection.fromJson(Map<String, dynamic> json)
+      : sections =
+            json['sections'].map<Section>((s) => Section.fromJson(s)).toList();
+
+  Map<String, dynamic> toJson() => {
+        'sections': sections.map((s) => s.toJson()).toList(),
+      };
 }
 
 const String defaultName = 'Untitled Section';
@@ -536,40 +612,19 @@ int getSectionMeasure(List<Section> sections, String section) {
   return -1;
 }
 
-class UserStorage {
-  // get the user data
-  Future<String> getUserData() async {
-    try {
-      final file = await _localFile;
-
-      // Read the file
-      String contents = await file.readAsString();
-
-      return contents;
-    } catch (e) {
-      // If encountering an error, return 0
-      return '';
-    }
+class SharedPref {
+  save(String key, value) async {
+    final prefs = await SharedPreferences.getInstance();
+    prefs.setString(key, json.encode(value));
   }
 
-  // set the user data
-  Future<File> setUserData(String data) async {
-    final file = await _localFile;
-
-    // Write the file
-    return file.writeAsString(data);
+  read(String key) async {
+    final prefs = await SharedPreferences.getInstance();
+    return json.decode(prefs.getString(key) ?? '');
   }
 
-  // get local path on system
-  Future<String> get _localPath async {
-    final directory = await getApplicationDocumentsDirectory();
-
-    return directory.path;
-  }
-
-  // reference to the file location
-  Future<File> get _localFile async {
-    final path = await _localPath;
-    return File('$path/data.json');
+  remove(String key) async {
+    final prefs = await SharedPreferences.getInstance();
+    prefs.remove(key);
   }
 }

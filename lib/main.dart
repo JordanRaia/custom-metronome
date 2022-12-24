@@ -3,6 +3,7 @@ import 'package:custom_metronome/sections.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:soundpool/soundpool.dart';
+// import 'package:shared_preferences/shared_preferences.dart';
 import 'package:custom_metronome/tempo.dart';
 import 'package:custom_metronome/globals.dart';
 import 'package:custom_metronome/metronomes.dart';
@@ -19,7 +20,7 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       theme: ThemeData(primarySwatch: Colors.grey),
-      home: RootPage(storage: UserStorage()),
+      home: const RootPage(),
       routes: {
         '/tempo': (context) => const EditTempo(),
         '/section': (context) => const EditSection(),
@@ -30,16 +31,31 @@ class MyApp extends StatelessWidget {
 }
 
 class RootPage extends StatefulWidget {
-  const RootPage({super.key, required this.storage});
-
-  // TODO - implement saving and loading
-  final UserStorage storage;
+  const RootPage({super.key});
 
   @override
   State<RootPage> createState() => _RootPageState();
 }
 
 class _RootPageState extends State<RootPage> {
+  //saving and loading
+  SharedPref sharedPref = SharedPref();
+
+  void loadSharedPrefs() async {
+    try {
+      UserData user = UserData.fromJson(await sharedPref.read("user"));
+      setState(() {
+        userData = user;
+        switchMetronome(user.currentIndex);
+      });
+      debugPrint('loaded');
+      // ignore: non_constant_identifier_names
+    } catch (e) {
+      debugPrint('nothing found');
+      debugPrint(e.toString());
+    }
+  }
+
   // colors
   var playColor = Colors.black;
   // metronome bool
@@ -348,6 +364,8 @@ class _RootPageState extends State<RootPage> {
     }
     // Load the sound files when the widget is initialized
     loadSounds();
+    // load user data
+    loadSharedPrefs();
   }
 
   @override
@@ -379,6 +397,17 @@ class _RootPageState extends State<RootPage> {
             color: Colors.white,
           ),
           IconButton(
+            onPressed: () {
+              // TODO test saving metronomes
+              debugPrint(userData.toString());
+              sharedPref.save("user", userData);
+              debugPrint('saved');
+            },
+            icon: const Icon(Icons.save_alt),
+            color: Colors.white,
+          ),
+          // TODO add a new metronome then switch to it
+          IconButton(
             onPressed: () {},
             icon: const Icon(Icons.add_box),
             color: Colors.white,
@@ -399,6 +428,7 @@ class _RootPageState extends State<RootPage> {
             icon: Icon(isMute ? Icons.volume_mute : Icons.volume_up),
             color: isMute ? Colors.teal : Colors.white,
           ),
+          // TODO add settings page with lead in measure settings
           IconButton(
             onPressed: () {},
             icon: const Icon(Icons.settings),
