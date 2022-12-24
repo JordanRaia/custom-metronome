@@ -103,13 +103,6 @@ class EditMetronomeState extends State<EditMetronome> {
                     userData.sectionData.add(CustomSection(sections: [
                       Section(),
                     ]));
-
-                    // metronomes = userData
-                    //     .metronomeData[userData.metronomeData.length - 1]
-                    //     .metronomes;
-
-                    // sections = userData
-                    //     .sectionData[userData.sectionData.length - 1].sections;
                   },
                 );
                 Navigator.of(context).pop();

@@ -22,7 +22,12 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(primarySwatch: Colors.grey),
       home: const RootPage(),
       routes: {
-        '/tempo': (context) => const EditTempo(),
+        '/tempo': (context) => WillPopScope(
+              onWillPop: () async {
+                return true;
+              },
+              child: const EditTempo(),
+            ),
         '/section': (context) => const EditSection(),
         '/metronome': (context) => const EditMetronome(),
       },
@@ -452,7 +457,10 @@ class _RootPageState extends State<RootPage> {
               height: newheight * 0.25,
               child: Center(
                 child: Column(
-                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  mainAxisAlignment:
+                      metronomes[activeMetronome].beatsPerMeasure < 6
+                          ? MainAxisAlignment.center
+                          : MainAxisAlignment.spaceEvenly,
                   children: [
                     //metronome less than 6 beats
                     if (metronomes[activeMetronome].beatsPerMeasure < 6)
