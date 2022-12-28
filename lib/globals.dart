@@ -6,6 +6,10 @@ import 'package:flutter/material.dart';
 // import 'package:path_provider/path_provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+// metronome icon
+const IconData metronome = IconData(0xf70b,
+    fontFamily: 'CupertinoIcons', fontPackage: 'cupertino_icons');
+
 // example metronome
 List<Metronome> exampleMetronome = [
   Metronome(

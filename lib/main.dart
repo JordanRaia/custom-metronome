@@ -57,11 +57,6 @@ class _RootPageState extends State<RootPage> {
     }
   }
 
-  // ads
-  // Future<InitializationStatus> _initGoogleMobileAds() {
-  //   return MobileAds.instance.initialize();
-  // }
-
   BannerAd? _bannerAd;
 
   // colors
@@ -83,9 +78,12 @@ class _RootPageState extends State<RootPage> {
   int currentMeasure = getCurrentMeasure(
       metronomes, userMeasure); // current measure of metronome object
 
-  //timer
+  //timers
   Timer timer = Timer.periodic(
       Duration(milliseconds: (60 / 120 * 1000).round()), (timer) {});
+
+  Timer percentTimer =
+      Timer.periodic(const Duration(milliseconds: 50), (percentTimer) {});
 
   //audio files
   var soundPlayer = SoundPlayer(); // Create a SoundPlayer instance
@@ -93,6 +91,55 @@ class _RootPageState extends State<RootPage> {
   // soundplayer object ids
   int high = 0;
   int low = 0;
+
+  void stopMetronome() {
+    // stop
+    setState(() {
+      timer.cancel();
+      isPlaying = false;
+      beat = 1;
+      leadInMeasure = 1;
+      measure = userMeasure;
+      currentMeasure = getCurrentMeasure(metronomes, userMeasure);
+      activeMetronome = getMetronomeIndex(metronomes, userMeasure);
+    });
+  }
+
+  void incrementPercent() {
+    if (tempoPercent != 200) {
+      setState(() {
+        tempoPercent += 1;
+        if (isPlaying) {
+          timer.cancel();
+          timer = Timer.periodic(
+              Duration(
+                  milliseconds: (getTime(
+                      metronomes[activeMetronome].tempo,
+                      tempoPercent,
+                      metronomes[activeMetronome].timeSignature))),
+              (timer) => timerParms());
+        }
+      });
+    }
+  }
+
+  void reducePercent() {
+    if (tempoPercent != 40) {
+      setState(() {
+        tempoPercent -= 1;
+        if (isPlaying) {
+          timer.cancel();
+          timer = Timer.periodic(
+              Duration(
+                  milliseconds: (getTime(
+                      metronomes[activeMetronome].tempo,
+                      tempoPercent,
+                      metronomes[activeMetronome].timeSignature))),
+              (timer) => timerParms());
+        }
+      });
+    }
+  }
 
   void showEditSectionStart(
       BuildContext context, int index, List<Section> sections) {
@@ -557,13 +604,15 @@ class _RootPageState extends State<RootPage> {
         actions: [
           IconButton(
             onPressed: () {
+              stopMetronome();
               Navigator.pushNamed(context, '/metronome');
             },
-            icon: const Icon(Icons.save),
+            icon: const Icon(metronome),
             color: Colors.white,
           ),
           IconButton(
             onPressed: () {
+              stopMetronome();
               setState(
                 () {
                   String name = getMetronomeName(defaultMetronomeName);
@@ -610,6 +659,7 @@ class _RootPageState extends State<RootPage> {
           ),
           IconButton(
             onPressed: () {
+              stopMetronome();
               Navigator.pushNamed(context, '/settings');
             },
             icon: const Icon(Icons.settings),
@@ -767,6 +817,7 @@ class _RootPageState extends State<RootPage> {
                           ),
                           IconButton(
                             onPressed: () {
+                              stopMetronome();
                               Navigator.pushNamed(context, '/tempo');
                             },
                             icon: const Icon(Icons.edit),
@@ -796,6 +847,7 @@ class _RootPageState extends State<RootPage> {
                           children: [
                             TextButton(
                               onPressed: () {
+                                stopMetronome();
                                 showEditSectionStart(
                                     context,
                                     getSectionIndex(sections, measure),
@@ -818,6 +870,7 @@ class _RootPageState extends State<RootPage> {
                           children: [
                             TextButton(
                               onPressed: () {
+                                stopMetronome();
                                 showEditMeasureStart(context, measure);
                               },
                               child: const Text('Measure▼'),
@@ -834,6 +887,7 @@ class _RootPageState extends State<RootPage> {
                         ),
                         IconButton(
                           onPressed: () {
+                            stopMetronome();
                             Navigator.pushNamed(context, '/section');
                           },
                           icon: const Icon(Icons.edit),
@@ -871,66 +925,72 @@ class _RootPageState extends State<RootPage> {
                             Row(
                               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                               children: [
-                                IconButton(
-                                    padding: EdgeInsets.zero,
-                                    onPressed: () {
-                                      // 40 is min
-                                      if (tempoPercent != 40) {
-                                        setState(() {
-                                          tempoPercent -= 1;
-                                          if (isPlaying) {
-                                            timer.cancel();
-                                            timer = Timer.periodic(
-                                                Duration(
-                                                    milliseconds: (getTime(
-                                                        metronomes[
-                                                                activeMetronome]
-                                                            .tempo,
-                                                        tempoPercent,
-                                                        metronomes[
-                                                                activeMetronome]
-                                                            .timeSignature))),
-                                                (timer) => timerParms());
-                                          }
-                                        });
-                                      }
+                                Container(
+                                  alignment: Alignment.center,
+                                  child: GestureDetector(
+                                    child: const Padding(
+                                      padding: EdgeInsets.zero,
+                                      child: Icon(
+                                        Icons.remove,
+                                        size: 45,
+                                      ),
+                                    ),
+                                    onTap: () {
+                                      reducePercent();
                                     },
-                                    icon: const Icon(
-                                      Icons.remove,
-                                      size: 45,
-                                    )),
+                                    onLongPress: () {
+                                      setState(() {
+                                        percentTimer = Timer.periodic(
+                                            const Duration(milliseconds: 50),
+                                            (timer) {
+                                          setState(() {
+                                            reducePercent();
+                                          });
+                                        });
+                                      });
+                                    },
+                                    onLongPressEnd: (_) {
+                                      setState(() {
+                                        percentTimer.cancel();
+                                      });
+                                    },
+                                  ),
+                                ),
                                 Text(
                                   '${(tempoPercent)}%',
                                   style: const TextStyle(fontSize: 25),
                                 ),
-                                IconButton(
-                                    padding: EdgeInsets.zero,
-                                    onPressed: () {
-                                      // 200 is max
-                                      if (tempoPercent != 200) {
-                                        setState(() {
-                                          tempoPercent += 1;
-                                          if (isPlaying) {
-                                            timer.cancel();
-                                            timer = Timer.periodic(
-                                                Duration(
-                                                    milliseconds: (getTime(
-                                                        metronomes[
-                                                                activeMetronome]
-                                                            .tempo,
-                                                        tempoPercent,
-                                                        metronomes[
-                                                                activeMetronome]
-                                                            .timeSignature))),
-                                                (timer) => timerParms());
-                                          }
-                                        });
-                                      }
+                                Container(
+                                  alignment: Alignment.center,
+                                  child: GestureDetector(
+                                    child: const Padding(
+                                      padding: EdgeInsets.zero,
+                                      child: Icon(
+                                        Icons.add,
+                                        size: 45,
+                                      ),
+                                    ),
+                                    onTap: () {
+                                      incrementPercent();
                                     },
-                                    icon: const Icon(
-                                      Icons.add,
-                                      size: 45,
-                                    )),
+                                    onLongPress: () {
+                                      setState(() {
+                                        percentTimer = Timer.periodic(
+                                            const Duration(milliseconds: 50),
+                                            (timer) {
+                                          setState(() {
+                                            incrementPercent();
+                                          });
+                                        });
+                                      });
+                                    },
+                                    onLongPressEnd: (_) {
+                                      setState(() {
+                                        percentTimer.cancel();
+                                      });
+                                    },
+                                  ),
+                                ),
                               ],
                             ),
                             const Divider(
