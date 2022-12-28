@@ -427,8 +427,8 @@ String getMeasureRangeMetronome(List<Metronome> metronomes, int index) {
       String range = '';
       if (metronomes[i].measures != 0) {
         if ((totalMeasures + 1) != (totalMeasures + metronomes[i].measures)) {
-          range =
-              '${(totalMeasures + 1)} - ${totalMeasures + metronomes[i].measures}';
+          range = '${(totalMeasures + 1)} - '
+              '${totalMeasures + metronomes[i].measures}';
         } else {
           range = '${(totalMeasures + 1)}';
         }

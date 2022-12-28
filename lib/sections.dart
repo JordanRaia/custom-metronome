@@ -66,6 +66,16 @@ class EditSectionState extends State<EditSection> {
                       }
                     }
                   }
+
+                  // check if measures is above 0
+                  if (int.parse(measuresController.text) <= 0) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                        content: Text('Measures must be above 0.'),
+                      ),
+                    );
+                    return;
+                  }
                   setState(() {
                     sections[index].name = nameController.text;
                     sections[index].measures =
@@ -119,6 +129,15 @@ class EditSectionState extends State<EditSection> {
               ),
               TextButton(
                 onPressed: () {
+                  // check if measures is above 0
+                  if (int.parse(measuresController.text) <= 0) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                        content: Text('Measures must be above 0.'),
+                      ),
+                    );
+                    return;
+                  }
                   setState(() {
                     String name = '';
                     if (nameController.text == '') {
